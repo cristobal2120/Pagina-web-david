@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CLAVEX COLOMBIA SAS – Distribución de productos de ferretería de alta calidad para todo Colombia."/>
+  <title>CLAVEX COLOMBIA SAS – Ferretería Industrial</title>
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════ -->
+<header class="cx-header" id="cx-header">
+  <div class="cx-container">
+    <nav class="cx-nav">
+
+      <!-- Logo CLAVEX con colores de la marca -->
+      <a href="#inicio" class="cx-logo" aria-label="CLAVEX Colombia SAS - Inicio">
+        <!--
+          🖼️ PARA USAR TU LOGO REAL:
+          Reemplaza el bloque de texto coloreado por:
+          <img src="assets/logo-clavex.png" alt="CLAVEX Colombia SAS" class="cx-logo-img">
+          (sube el logo a la carpeta /assets/)
+        -->
+        <div class="cx-logo-txt">
+          <span class="cx-logo-name">
+            <span class="o">CLA</span><span class="v">V</span><span class="e">E</span><span class="x">X</span>
+          </span>
+          <span class="cx-logo-sub">Colombia SAS</span>
+        </div>
+      </a>
+
+      <!-- Navegación desktop -->
+      <ul class="cx-nav-links" role="list">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#productos">Productos</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+
+      <!-- CTA button -->
+      <a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido"
+         target="_blank" rel="noopener noreferrer"
+         class="cx-btn cx-btn-orange cx-btn-nav"
+         aria-label="Hacer pedido por WhatsApp">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+        Hacer Pedido
+      </a>
+
+      <!-- Hamburger móvil -->
+      <button class="cx-hamburger" id="cx-ham" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="cx-mobile-menu" id="cx-menu" role="navigation" aria-label="Menú móvil">
+    <a href="#inicio"    onclick="cxCloseMenu()">Inicio</a>
+    <a href="#productos" onclick="cxCloseMenu()">Productos</a>
+    <a href="#nosotros"  onclick="cxCloseMenu()">Nosotros</a>
+    <a href="#contacto"  onclick="cxCloseMenu()">Contacto</a>
+    <a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido"
+       target="_blank" onclick="cxCloseMenu()" style="color:var(--orange)">📦 Hacer Pedido</a>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section id="inicio" aria-labelledby="hero-title">
+  <div class="cx-hero-bg"  aria-hidden="true"></div>
+  <div class="cx-hero-grid-lines" aria-hidden="true"></div>
+
+  <div class="cx-container">
+    <div class="cx-hero-content">
+      <div class="cx-section-tag">
+        <span class="dot" aria-hidden="true"></span>
+        Distribución Nacional · Colombia
+      </div>
+
+      <h1 class="cx-hero-title" id="hero-title">
+        FERRETERÍA<br>
+        DE <span class="acc-o">ALTA</span><br>
+        <span class="acc-g">CALIDAD</span>
+      </h1>
+
+      <p class="cx-hero-sub">
+        Distribución de productos de ferretería para constructores, contratistas y ferreterías en todo Colombia. Calidad garantizada y precios competitivos.
+      </p>
+
+      <div class="cx-hero-cta">
+        <a href="#productos" class="cx-btn cx-btn-orange">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.45 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          Comprar Ahora
+        </a>
+        <a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido"
+           target="_blank" rel="noopener noreferrer"
+           class="cx-btn cx-btn-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
+          </svg>
+          Contactar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="cx-hero-stats" aria-label="Estadísticas de la empresa">
+    <div class="cx-stat">
+      <div class="cx-stat-num">500+</div>
+      <div class="cx-stat-lbl">Productos</div>
+    </div>
+    <div class="cx-stat">
+      <div class="cx-stat-num">10+</div>
+      <div class="cx-stat-lbl">Años de exp.</div>
+    </div>
+    <div class="cx-stat">
+      <div class="cx-stat-num">1K+</div>
+      <div class="cx-stat-lbl">Clientes</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     PRODUCTOS — Conectado a Firebase Firestore
+     GET /api/productos → getProductos() → api.js
+═══════════════════════════════════════════════ -->
+<section id="productos" aria-labelledby="productos-title">
+  <div class="cx-container">
+
+    <!-- Header sección -->
+    <div class="cx-section-header cx-reveal">
+      <div class="cx-section-tag">
+        <span class="dot" aria-hidden="true"></span>
+        Catálogo
+      </div>
+      <h2 class="cx-section-title" id="productos-title">
+        NUESTROS<br><span class="acc">PRODUCTOS</span>
+      </h2>
+      <p class="cx-section-sub">
+        Catálogo completo de ferretería industrial. Actualizado en tiempo real desde Firebase Firestore.
+      </p>
+    </div>
+
+    <!-- Toolbar: Búsqueda + Filtros -->
+    <div class="cx-toolbar cx-reveal" role="search">
+      <div class="cx-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="search"
+          id="cx-buscar"
+          placeholder="Buscar producto..."
+          autocomplete="off"
+          aria-label="Buscar en el catálogo de productos"
+        />
+      </div>
+
+      <div class="cx-filtros-fila">
+        <!-- Botones de categoría — inyectados por productos.js -->
+        <div id="cx-filtros" role="group" aria-label="Filtrar por categoría"></div>
+        <span id="cx-contador" aria-live="polite" aria-atomic="true"></span>
+      </div>
+    </div>
+
+    <!--
+      ┌────────────────────────────────────────────────┐
+      │  🔥 GRID DE PRODUCTOS — Firebase Firestore     │
+      │  FUENTE: colección "productos" en Firestore    │
+      │  LISTENER: escucharProductos() en api.js       │
+      │  RENDER:   renderGrid() en productos.js        │
+      └────────────────────────────────────────────────┘
+    -->
+    <div id="cx-grid" role="list" aria-label="Catálogo de productos"></div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SOBRE NOSOTROS
+═══════════════════════════════════════════════ -->
+<section id="nosotros" aria-labelledby="nosotros-title">
+  <div class="cx-container">
+    <div class="cx-about-grid">
+      <div class="cx-reveal">
+        <div class="cx-section-tag">
+          <span class="dot"></span>Quiénes Somos
+        </div>
+        <h2 class="cx-section-title" id="nosotros-title" style="margin-top:.4rem">
+          SOBRE<br><span class="acc">NOSOTROS</span>
+        </h2>
+        <div class="cx-about-text" style="margin-top:1.25rem">
+          <p>
+            <strong style="color:var(--white)">CLAVEX COLOMBIA SAS</strong> es una empresa colombiana especializada en la distribución de productos de ferretería de alta calidad, con cobertura en todo el territorio nacional.
+          </p>
+          <p>
+            Nos distinguimos por ofrecer productos confiables, precios competitivos y un servicio personalizado que garantiza la satisfacción de ferreterías, constructoras y contratistas.
+          </p>
+          <p>
+            Fundada con el compromiso de impulsar el desarrollo de la construcción en Colombia, contamos con un equipo dedicado y una logística eficiente para entregas puntuales a todo el país.
+          </p>
+        </div>
+
+        <!-- Features -->
+        <div style="display:flex;flex-direction:column;gap:.85rem;margin-top:2rem">
+          <div style="display:flex;align-items:flex-start;gap:.9rem">
+            <div style="width:38px;height:38px;border-radius:8px;background:rgba(255,106,0,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--orange)"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <strong style="font-family:var(--font-cond);font-size:.95rem;font-weight:700;display:block;margin-bottom:.15rem">Calidad Certificada</strong>
+              <p style="font-size:.83rem;color:var(--gray);margin:0">Productos que cumplen normas técnicas colombianas e internacionales.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.9rem">
+            <div style="width:38px;height:38px;border-radius:8px;background:rgba(0,123,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--blue)"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <div>
+              <strong style="font-family:var(--font-cond);font-size:.95rem;font-weight:700;display:block;margin-bottom:.15rem">Distribución Nacional</strong>
+              <p style="font-size:.83rem;color:var(--gray);margin:0">Logística eficiente con entregas a todo Colombia en tiempos óptimos.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.9rem">
+            <div style="width:38px;height:38px;border-radius:8px;background:rgba(40,167,69,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--green)"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <strong style="font-family:var(--font-cond);font-size:.95rem;font-weight:700;display:block;margin-bottom:.15rem">Precios Competitivos</strong>
+              <p style="font-size:.83rem;color:var(--gray);margin:0">Las mejores tarifas del mercado con facilidades para distribuidores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Owner card -->
+      <div class="cx-reveal" style="position:relative">
+        <div class="cx-owner-card">
+          <div class="cx-owner-av">DG</div>
+          <div class="cx-owner-name">David Galvis</div>
+          <div class="cx-owner-role">Fundador & Gerente General</div>
+          <p class="cx-owner-bio">
+            Empresario colombiano con más de 10 años de experiencia en el sector ferretero. Apasionado por conectar a constructores y ferreterías con productos de alta calidad a precios justos en toda Colombia.
+          </p>
+          <div style="margin-top:1.4rem;display:flex;justify-content:center">
+            <a href="https://wa.me/573157096324?text=Hola%20David,%20quiero%20conocer%20m%C3%A1s%20sobre%20CLAVEX"
+               target="_blank" rel="noopener noreferrer"
+               class="cx-btn cx-btn-green" style="font-size:.82rem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/></svg>
+              Contactar a David
+            </a>
+          </div>
+        </div>
+
+        <!-- Metrics -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;text-align:center">
+            <div style="font-family:var(--font-head);font-size:1.8rem;color:var(--orange)">+500</div>
+            <div style="font-family:var(--font-cond);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)">Referencias</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;text-align:center">
+            <div style="font-family:var(--font-head);font-size:1.8rem;color:var(--blue)">+1K</div>
+            <div style="font-family:var(--font-cond);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)">Clientes</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;text-align:center">
+            <div style="font-family:var(--font-head);font-size:1.8rem;color:var(--green)">10+</div>
+            <div style="font-family:var(--font-cond);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)">Años</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;text-align:center">
+            <div style="font-family:var(--font-head);font-size:1.8rem;color:var(--orange)">32</div>
+            <div style="font-family:var(--font-cond);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)">Dptos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     CONTACTO — POST /api/contacto
+═══════════════════════════════════════════════ -->
+<section id="contacto" aria-labelledby="contacto-title">
+  <div class="cx-container">
+    <div class="cx-section-header cx-reveal" style="margin-bottom:3rem">
+      <div class="cx-section-tag"><span class="dot"></span>Contacto</div>
+      <h2 class="cx-section-title" id="contacto-title">
+        HABLEMOS DE<br><span style="color:var(--green)">TU PEDIDO</span>
+      </h2>
+    </div>
+
+    <div class="cx-contact-grid">
+      <!-- Info de contacto -->
+      <div class="cx-reveal">
+        <div class="cx-contact-item">
+          <div class="cx-contact-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--orange)"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          </div>
+          <div>
+            <span class="cx-contact-lbl">Teléfono / WhatsApp</span>
+            <span class="cx-contact-val">+57 315 709 6324</span>
+          </div>
+        </div>
+        <div class="cx-contact-item">
+          <div class="cx-contact-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--orange)"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <span class="cx-contact-lbl">Cobertura</span>
+            <span class="cx-contact-val">Todo el territorio colombiano</span>
+          </div>
+        </div>
+        <div class="cx-contact-item">
+          <div class="cx-contact-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--orange)"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <span class="cx-contact-lbl">Horario de atención</span>
+            <span class="cx-contact-val">Lun – Sáb · 8:00am – 6:00pm</span>
+          </div>
+        </div>
+
+        <div style="margin-top:1.75rem">
+          <a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido"
+             target="_blank" rel="noopener noreferrer"
+             class="cx-btn cx-btn-green" style="font-size:.95rem;padding:.8rem 1.8rem">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
+            </svg>
+            Pedir por WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <!-- Formulario de contacto -->
+      <!--
+        📡 ENDPOINT: POST /api/contacto
+        Para guardar en Firebase Firestore:
+        1. Crea la función en api.js: async function crearContacto(datos)
+        2. Usa addDoc(collection(db, 'contactos'), datos)
+        3. Llama desde handleContactForm() abajo
+      -->
+      <div class="cx-form cx-reveal">
+        <h3 style="font-family:var(--font-head);font-size:1.55rem;letter-spacing:.04em;margin-bottom:1.4rem">
+          ENVÍA TU <span style="color:var(--orange)">SOLICITUD</span>
+        </h3>
+
+        <form id="cx-contact-form" novalidate>
+          <div class="cx-form-row">
+            <div class="cx-form-group">
+              <label for="cf-nombre">Nombre *</label>
+              <input type="text" id="cf-nombre" name="nombre" placeholder="Tu nombre" required>
+            </div>
+            <div class="cx-form-group">
+              <label for="cf-empresa">Empresa</label>
+              <input type="text" id="cf-empresa" name="empresa" placeholder="Tu empresa">
+            </div>
+          </div>
+          <div class="cx-form-row">
+            <div class="cx-form-group">
+              <label for="cf-tel">Teléfono *</label>
+              <input type="tel" id="cf-tel" name="telefono" placeholder="+57 300 000 0000" required>
+            </div>
+            <div class="cx-form-group">
+              <label for="cf-email">Email</label>
+              <input type="email" id="cf-email" name="email" placeholder="tu@email.com">
+            </div>
+          </div>
+          <div class="cx-form-group">
+            <label for="cf-msg">Mensaje / Pedido *</label>
+            <textarea id="cf-msg" name="mensaje" placeholder="Describe tu pedido, cantidades y ciudad de entrega..." required></textarea>
+          </div>
+          <button type="submit" class="cx-btn cx-btn-orange" style="width:100%;justify-content:center;padding:.85rem" id="cx-submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            Enviar Solicitud
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     WHATSAPP BOTÓN FLOTANTE
+═══════════════════════════════════════════════ -->
+<div class="cx-wa-float" role="complementary" aria-label="Chat WhatsApp">
+  <a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido"
+     target="_blank" rel="noopener noreferrer"
+     class="cx-wa-circle"
+     aria-label="Abrir chat de WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
+    </svg>
+  </a>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="cx-container">
+    <div class="cx-footer-grid">
+
+      <!-- Brand -->
+      <div>
+        <a href="#inicio" class="cx-logo" style="display:inline-flex">
+          <div class="cx-logo-txt">
+            <span class="cx-logo-name" style="font-size:1.2rem">
+              <span class="o">CLA</span><span class="v">V</span><span class="e">E</span><span class="x">X</span>
+            </span>
+            <span class="cx-logo-sub">Colombia SAS</span>
+          </div>
+        </a>
+        <p class="cx-footer-brand-p">
+          Distribución de productos de ferretería de alta calidad para toda Colombia. Tu aliado confiable en construcción y mantenimiento.
+        </p>
+        <div class="cx-social-row" aria-label="Redes sociales">
+          <button class="cx-social-btn" onclick="toastInfo('Instagram próximamente 📸')" aria-label="Instagram">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </button>
+          <button class="cx-social-btn" onclick="toastInfo('Facebook próximamente 👍')" aria-label="Facebook">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </button>
+          <a href="https://wa.me/573157096324" target="_blank" rel="noopener noreferrer" class="cx-social-btn" aria-label="WhatsApp">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Nav -->
+      <div>
+        <div class="cx-footer-heading">Navegación</div>
+        <ul class="cx-footer-links">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#productos">Productos</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Categorías -->
+      <div>
+        <div class="cx-footer-heading">Categorías</div>
+        <ul class="cx-footer-links">
+          <li><a href="#productos" onclick="window.cxFiltrarCat && cxFiltrarCat('herramientas')">Herramientas</a></li>
+          <li><a href="#productos" onclick="window.cxFiltrarCat && cxFiltrarCat('electricidad')">Electricidad</a></li>
+          <li><a href="#productos" onclick="window.cxFiltrarCat && cxFiltrarCat('fijacion')">Fijación</a></li>
+          <li><a href="#productos" onclick="window.cxFiltrarCat && cxFiltrarCat('plomeria')">Plomería</a></li>
+          <li><a href="#productos" onclick="window.cxFiltrarCat && cxFiltrarCat('construccion')">Construcción</a></li>
+        </ul>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <div class="cx-footer-heading">Contacto</div>
+        <ul class="cx-footer-links">
+          <li style="color:var(--white);font-size:.88rem;padding:.28rem 0;font-weight:600">David Galvis</li>
+          <li><a href="tel:+573157096324">+57 315 709 6324</a></li>
+          <li><a href="https://wa.me/573157096324?text=Hola,%20quiero%20hacer%20un%20pedido" target="_blank">WhatsApp Business</a></li>
+          <li style="color:var(--gray);font-size:.82rem;padding:.3rem 0">Lun – Sáb · 8:00 – 18:00</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cx-footer-bottom">
+      <p class="cx-footer-copy">© 2025 <span>CLAVEX COLOMBIA SAS</span>. Todos los derechos reservados.</p>
+      <p class="cx-footer-copy" style="font-size:.72rem">Powered by Firebase 🔥</p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════
+     MODAL PRODUCTO
+═══════════════════════════════════════════════ -->
+<div id="cx-modal" role="dialog" aria-modal="true" aria-label="Detalle del producto">
+  <div class="cx-modal-box">
+    <button class="cx-modal-close" onclick="cxCerrarModal()" aria-label="Cerrar modal">✕</button>
+    <div id="cx-modal-body"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════ -->
+<div id="cx-toast" role="status" aria-live="polite">
+  <span class="cx-toast-dot"></span>
+  <span class="cx-toast-msg"></span>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCRIPTS
+     ORDEN IMPORTANTE:
+     1. firebase-config.js  (inicializa Firebase + exporta db)
+     2. api.js              (funciones Firestore)
+     3. productos.js        (UI + consume api.js)
+═══════════════════════════════════════════════ -->
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/api.js"></script>
+<script type="module" src="js/productos.js"></script>
+
+<script>
+/* ── Lógica UI no dependiente de módulos ── */
+
+// Header scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('cx-header').classList.toggle('scrolled', scrollY > 50);
+}, { passive: true });
+
+// Hamburger
+document.getElementById('cx-ham').addEventListener('click', function() {
+  this.classList.toggle('open');
+  document.getElementById('cx-menu').classList.toggle('open');
+  this.setAttribute('aria-expanded', this.classList.contains('open'));
+});
+
+function cxCloseMenu() {
+  document.getElementById('cx-ham').classList.remove('open');
+  document.getElementById('cx-menu').classList.remove('open');
+}
+
+// Scroll Reveal
+const revealIO = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealIO.unobserve(e.target); } }),
+  { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+);
+document.querySelectorAll('.cx-reveal').forEach(el => revealIO.observe(el));
+
+// Toast helper
+function toastInfo(msg) {
+  const t = document.getElementById('cx-toast');
+  const d = t.querySelector('.cx-toast-dot');
+  const m = t.querySelector('.cx-toast-msg');
+  t.style.borderColor = '#007bff'; d.style.background = '#007bff';
+  m.textContent = msg; t.classList.add('show');
+  clearTimeout(window._ti);
+  window._ti = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Contact form (redirige a WhatsApp + Firestore cuando esté conectado)
+document.getElementById('cx-contact-form')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn  = document.getElementById('cx-submit-btn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="cx-spinner"></span> Enviando...';
+  btn.disabled  = true;
+
+  const fd = new FormData(this);
+  const datos = Object.fromEntries(fd.entries());
+
+  // TODO: Guardar en Firestore:
+  // import { crearContacto } from './api.js';
+  // await crearContacto(datos);
+
+  await new Promise(r => setTimeout(r, 900)); // simula latencia
+
+  const waText = encodeURIComponent(
+    `Hola, soy *${datos.nombre}*${datos.empresa ? ` de ${datos.empresa}` : ''}.\n` +
+    `Tel: ${datos.telefono}\n` +
+    `Mensaje: ${datos.mensaje}`
+  );
+
+  btn.innerHTML = orig;
+  btn.disabled  = false;
+  this.reset();
+
+  const t = document.getElementById('cx-toast');
+  t.querySelector('.cx-toast-dot').style.background = '#28a745';
+  t.querySelector('.cx-toast-msg').textContent = '¡Enviado! Abriendo WhatsApp ✅';
+  t.style.borderColor = '#28a745';
+  t.classList.add('show');
+  clearTimeout(window._tcc);
+  window._tcc = setTimeout(() => { t.classList.remove('show'); }, 3500);
+  setTimeout(() => window.open(`https://wa.me/573157096324?text=${waText}`, '_blank'), 700);
+});
+</script>
+</body>
+</html>

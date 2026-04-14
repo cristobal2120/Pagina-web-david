@@ -1,0 +1,428 @@
+/**
+ * ╔══════════════════════════════════════════════════════╗
+ * ║         CLAVEX — Lógica UI de Productos              ║
+ * ║                   productos.js                       ║
+ * ╚══════════════════════════════════════════════════════╝
+ *
+ * Responsabilidades:
+ *  · Llamar a la API (api.js) para obtener datos de Firebase
+ *  · Renderizar tarjetas de productos
+ *  · Filtros por categoría + búsqueda en tiempo real
+ *  · Modal de detalle
+ *  · Integración WhatsApp
+ *  · Skeleton loading y manejo de errores
+ */
+
+import { getProductos, escucharProductos, ApiError } from './api.js';
+
+/* ══════════════════════════════════════════════════════
+   ESTADO DE LA SECCIÓN
+══════════════════════════════════════════════════════ */
+const Estado = {
+  todos:          [],
+  filtrados:      [],
+  categoriaActiva:'todos',
+  busqueda:       '',
+  cargando:       false,
+  unsubscribe:    null,   // Para detener el listener en tiempo real
+};
+
+/* ══════════════════════════════════════════════════════
+   CONFIGURACIÓN
+══════════════════════════════════════════════════════ */
+const CFG = {
+  waNumero:    '573157096324',
+  debounceMs:  320,
+  skeletons:   9,
+};
+
+const CATEGORIAS_LABEL = {
+  todos:        'Todos',
+  herramientas: 'Herramientas',
+  electricidad: 'Electricidad',
+  fijacion:     'Fijación',
+  plomeria:     'Plomería',
+  pintura:      'Pintura',
+  construccion: 'Construcción',
+  seguridad:    'Seguridad',
+  otros:        'Otros',
+};
+
+const CAT_COLORES = {
+  herramientas: '#ff6a00',
+  electricidad: '#007bff',
+  fijacion:     '#ff6a00',
+  plomeria:     '#17a2b8',
+  pintura:      '#6f42c1',
+  construccion: '#28a745',
+  seguridad:    '#dc3545',
+  otros:        '#6c757d',
+};
+
+/* ══════════════════════════════════════════════════════
+   ÍCONOS SVG POR CATEGORÍA
+══════════════════════════════════════════════════════ */
+const CAT_ICONOS = {
+  herramientas: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="21" y="7" width="6" height="26" rx="3" fill="currentColor" opacity=".85"/>
+    <polygon points="24,38 17,28 31,28" fill="currentColor"/>
+    <rect x="15" y="9" width="18" height="7" rx="3.5" fill="currentColor" opacity=".4"/>
+  </svg>`,
+  electricidad: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 6 L15 26h9L13 42 33 20h-10L24 6z" fill="currentColor" opacity=".85"/>
+  </svg>`,
+  fijacion: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="21" y="5" width="6" height="30" rx="3" fill="currentColor" opacity=".85"/>
+    <polygon points="24,40 17,32 31,32" fill="currentColor"/>
+    <rect x="17" y="7" width="14" height="7" rx="3.5" fill="currentColor" opacity=".4"/>
+  </svg>`,
+  plomeria: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="7" y="20" width="34" height="8" rx="4" fill="currentColor" opacity=".85"/>
+    <rect x="9" y="22" width="30" height="4" rx="2" fill="currentColor" opacity=".3"/>
+    <circle cx="42" cy="24" r="6" fill="currentColor" opacity=".5"/>
+    <circle cx="6" cy="24" r="6" fill="currentColor" opacity=".5"/>
+  </svg>`,
+  pintura: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15" y="10" width="18" height="24" rx="4" fill="currentColor" opacity=".85"/>
+    <rect x="19" y="7" width="10" height="5" rx="2.5" fill="currentColor" opacity=".5"/>
+    <rect x="21" y="34" width="6" height="7" rx="2" fill="currentColor" opacity=".4"/>
+    <ellipse cx="24" cy="18" rx="7" ry="3" fill="white" opacity=".15"/>
+  </svg>`,
+  construccion: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="7" y="21" width="34" height="6" rx="3" fill="currentColor" opacity=".85"/>
+    <rect x="11" y="17" width="6" height="4" rx="1" fill="currentColor" opacity=".5"/>
+    <rect x="21" y="27" width="6" height="4" rx="1" fill="currentColor" opacity=".5"/>
+    <rect x="31" y="17" width="6" height="4" rx="1" fill="currentColor" opacity=".5"/>
+  </svg>`,
+  seguridad: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 6L10 13v12c0 8.5 6 15.5 14 17 8-1.5 14-8.5 14-17V13L24 6z" fill="currentColor" opacity=".8"/>
+    <path d="M17 24l5 5 9-9" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`,
+  otros: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="24" cy="24" r="16" stroke="currentColor" stroke-width="3" fill="none" opacity=".7"/>
+    <circle cx="24" cy="24" r="6" fill="currentColor" opacity=".5"/>
+  </svg>`,
+};
+
+/* ══════════════════════════════════════════════════════
+   UTILIDADES
+══════════════════════════════════════════════════════ */
+function formatCOP(n) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency', currency: 'COP', maximumFractionDigits: 0
+  }).format(n);
+}
+
+function waLink(nombre) {
+  return `https://wa.me/${CFG.waNumero}?text=${encodeURIComponent(`Hola, quiero el producto *${nombre}*`)}`;
+}
+
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+function toastShow(msg, tipo = 'ok') {
+  const t = document.getElementById('cx-toast');
+  if (!t) return;
+  const colores = { ok: '#28a745', error: '#dc3545', info: '#007bff' };
+  t.style.borderColor = colores[tipo] || colores.ok;
+  t.querySelector('.cx-toast-dot').style.background = colores[tipo] || colores.ok;
+  t.querySelector('.cx-toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove('show'), 3800);
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER: SKELETON CARDS
+══════════════════════════════════════════════════════ */
+function renderSkeletons() {
+  const grid = document.getElementById('cx-grid');
+  if (!grid) return;
+  grid.innerHTML = Array.from({ length: CFG.skeletons }, (_, i) => `
+    <div class="cx-card cx-skeleton" style="animation-delay:${i * 50}ms">
+      <div class="cx-card-img sk-box"></div>
+      <div class="cx-card-body" style="padding:1.2rem">
+        <div class="sk-box" style="height:.6rem;width:38%;border-radius:4px;margin-bottom:.8rem"></div>
+        <div class="sk-box" style="height:.9rem;width:82%;border-radius:4px;margin-bottom:.5rem"></div>
+        <div class="sk-box" style="height:.7rem;width:65%;border-radius:4px;margin-bottom:1.2rem"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="sk-box" style="height:1.5rem;width:35%;border-radius:4px"></div>
+          <div class="sk-box" style="height:2.2rem;width:42%;border-radius:6px"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER: ESTADO VACÍO
+══════════════════════════════════════════════════════ */
+function renderVacio(msg = '', sub = '') {
+  const grid = document.getElementById('cx-grid');
+  if (!grid) return;
+  grid.innerHTML = `
+    <div class="cx-empty-state">
+      <div class="cx-empty-icon">🔍</div>
+      <p class="cx-empty-title">${msg || 'Sin productos'}</p>
+      <p class="cx-empty-sub">${sub || 'Intenta con otra búsqueda o categoría'}</p>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER: TARJETA DE PRODUCTO
+══════════════════════════════════════════════════════ */
+function renderTarjeta(p, idx) {
+  const color = CAT_COLORES[p.categoria] || '#ff6a00';
+  const icono = CAT_ICONOS[p.categoria] || CAT_ICONOS.otros;
+  const label = CATEGORIAS_LABEL[p.categoria] || p.categoria;
+  const delay = Math.min(idx * 55, 450);
+
+  return `
+    <article
+      class="cx-card"
+      style="animation-delay:${delay}ms"
+      tabindex="0"
+      role="button"
+      aria-label="Ver detalle: ${p.nombre}"
+      onclick="window.cxAbrirModal('${p.id}')"
+      onkeydown="if(event.key==='Enter')window.cxAbrirModal('${p.id}')"
+    >
+      <!-- Imagen / placeholder -->
+      <div class="cx-card-img" style="--c:${color}">
+        ${p.imagen
+          ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
+          : `<div class="cx-placeholder" style="color:${color}">${icono}</div>`
+        }
+        ${p.destacado ? '<span class="cx-badge-star">★ Destacado</span>' : ''}
+        <div class="cx-img-veil"></div>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="cx-card-body">
+        <span class="cx-cat-pill" style="color:${color};background:${color}1a;border-color:${color}30">
+          ${label}
+        </span>
+        <h3 class="cx-card-name">${p.nombre}</h3>
+        <p class="cx-card-desc">${p.descripcion}</p>
+
+        <div class="cx-card-foot">
+          <span class="cx-precio">${formatCOP(p.precio)}</span>
+          <a
+            href="${waLink(p.nombre)}"
+            target="_blank" rel="noopener noreferrer"
+            class="cx-wa-btn"
+            onclick="event.stopPropagation()"
+            title="Pedir por WhatsApp"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
+            </svg>
+            Pedir
+          </a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER: GRID COMPLETO
+══════════════════════════════════════════════════════ */
+function renderGrid(productos) {
+  const grid     = document.getElementById('cx-grid');
+  const contador = document.getElementById('cx-contador');
+  if (!grid) return;
+
+  if (!productos?.length) {
+    renderVacio(
+      Estado.busqueda ? `Sin resultados para "${Estado.busqueda}"` : 'Sin productos disponibles',
+      Estado.busqueda ? 'Prueba otro término de búsqueda' : 'Vuelve pronto, estamos actualizando el catálogo'
+    );
+    if (contador) contador.textContent = '0 productos';
+    return;
+  }
+
+  grid.innerHTML = productos.map((p, i) => renderTarjeta(p, i)).join('');
+
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.cx-card').forEach(c => c.classList.add('visible'));
+  });
+
+  if (contador) {
+    contador.textContent = `${productos.length} producto${productos.length !== 1 ? 's' : ''}`;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER: BOTONES DE FILTRO
+══════════════════════════════════════════════════════ */
+function renderFiltros(productos) {
+  const contenedor = document.getElementById('cx-filtros');
+  if (!contenedor) return;
+
+  const cats = ['todos', ...new Set(productos.map(p => p.categoria).filter(Boolean).sort())];
+
+  contenedor.innerHTML = cats.map(cat => {
+    const n      = cat === 'todos' ? productos.length : productos.filter(p => p.categoria === cat).length;
+    const activo = cat === Estado.categoriaActiva;
+    const color  = CAT_COLORES[cat] || '#ff6a00';
+
+    return `
+      <button
+        class="cx-filtro-btn ${activo ? 'activo' : ''}"
+        data-cat="${cat}"
+        onclick="window.cxFiltrarCat('${cat}')"
+        style="${activo ? `--fc:${color}` : ''}"
+      >
+        ${CATEGORIAS_LABEL[cat] || cat}
+        <span class="cx-filtro-count">${n}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   FILTRAR + BUSCAR
+══════════════════════════════════════════════════════ */
+function aplicarFiltros() {
+  let r = [...Estado.todos];
+
+  if (Estado.categoriaActiva !== 'todos') {
+    r = r.filter(p => p.categoria === Estado.categoriaActiva);
+  }
+  if (Estado.busqueda.trim()) {
+    const q = Estado.busqueda.toLowerCase().trim();
+    r = r.filter(p =>
+      p.nombre.toLowerCase().includes(q) ||
+      p.descripcion.toLowerCase().includes(q) ||
+      (p.categoria || '').includes(q)
+    );
+  }
+
+  Estado.filtrados = r;
+  renderGrid(r);
+}
+
+/* ══════════════════════════════════════════════════════
+   MODAL DE DETALLE
+══════════════════════════════════════════════════════ */
+function abrirModal(id) {
+  const p = Estado.todos.find(x => x.id === id);
+  if (!p) return;
+
+  const modal = document.getElementById('cx-modal');
+  const body  = document.getElementById('cx-modal-body');
+  if (!modal || !body) return;
+
+  const color  = CAT_COLORES[p.categoria] || '#ff6a00';
+  const label  = CATEGORIAS_LABEL[p.categoria] || p.categoria;
+  const icono  = CAT_ICONOS[p.categoria] || CAT_ICONOS.otros;
+
+  body.innerHTML = `
+    <div class="cx-modal-img" style="--c:${color}">
+      ${p.imagen
+        ? `<img src="${p.imagen}" alt="${p.nombre}">`
+        : `<div class="cx-placeholder cx-placeholder-lg" style="color:${color}">${icono}</div>`
+      }
+    </div>
+    <div class="cx-modal-info">
+      <span class="cx-cat-pill" style="color:${color};background:${color}1a;border-color:${color}30">${label}</span>
+      <h2 class="cx-modal-title">${p.nombre}</h2>
+      <p class="cx-modal-desc">${p.descripcion}</p>
+      <div class="cx-modal-precio">${formatCOP(p.precio)}</div>
+      <a href="${waLink(p.nombre)}" target="_blank" rel="noopener noreferrer"
+         class="cx-modal-wa-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
+        </svg>
+        Pedir por WhatsApp
+      </a>
+    </div>
+  `;
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal() {
+  const m = document.getElementById('cx-modal');
+  if (m) m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════════════════════════
+   CARGA INICIAL — Firebase Firestore
+   GET /api/productos → getProductos()
+══════════════════════════════════════════════════════ */
+async function init() {
+  Estado.cargando = true;
+  renderSkeletons();
+
+  try {
+    // ─── ENDPOINT: GET /api/productos ──────────────
+    // Escucha en tiempo real (se actualiza sin recargar)
+    Estado.unsubscribe = escucharProductos((productos) => {
+      Estado.todos     = productos;
+      Estado.filtrados = [...productos];
+
+      if (Estado.cargando) {
+        renderFiltros(productos);
+        Estado.cargando = false;
+      } else {
+        // Actualización silenciosa en tiempo real
+        renderFiltros(productos);
+      }
+      aplicarFiltros();
+    });
+
+  } catch (error) {
+    console.error('[Productos] Error:', error);
+    Estado.cargando = false;
+    renderVacio(
+      'No se pudo conectar con Firebase',
+      error.message || 'Verifica tu configuración en firebase-config.js'
+    );
+    toastShow('Error al cargar productos. Revisa la consola.', 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   EXPONER FUNCIONES GLOBALES (para onclick en HTML)
+══════════════════════════════════════════════════════ */
+window.cxAbrirModal  = abrirModal;
+window.cxCerrarModal = cerrarModal;
+
+window.cxFiltrarCat = (cat) => {
+  Estado.categoriaActiva = cat;
+  document.querySelectorAll('.cx-filtro-btn').forEach(b => {
+    const activo = b.dataset.cat === cat;
+    b.classList.toggle('activo', activo);
+    const c = CAT_COLORES[cat] || '#ff6a00';
+    activo ? b.style.setProperty('--fc', c) : b.style.removeProperty('--fc');
+  });
+  aplicarFiltros();
+};
+
+/* ══════════════════════════════════════════════════════
+   DOM READY
+══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+
+  // Búsqueda con debounce
+  const inp = document.getElementById('cx-buscar');
+  if (inp) {
+    const doBuscar = debounce(v => { Estado.busqueda = v; aplicarFiltros(); }, CFG.debounceMs);
+    inp.addEventListener('input', e => doBuscar(e.target.value));
+  }
+
+  // Cerrar modal con Escape o clic en overlay
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+  document.getElementById('cx-modal')?.addEventListener('click', e => {
+    if (e.target.id === 'cx-modal') cerrarModal();
+  });
+});
