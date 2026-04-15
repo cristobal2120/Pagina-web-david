@@ -13,7 +13,7 @@
  *  · Skeleton loading y manejo de errores
  */
 
-import { getProductos, escucharProductos, ApiError } from './api.js';
+import { getProductos } from './api.js';
 
 /* ══════════════════════════════════════════════════════
    ESTADO DE LA SECCIÓN
@@ -24,7 +24,7 @@ const Estado = {
   categoriaActiva:'todos',
   busqueda:       '',
   cargando:       false,
-  unsubscribe:    null,   // Para detener el listener en tiempo real
+  unsubscribe:    null,
 };
 
 /* ══════════════════════════════════════════════════════
@@ -355,36 +355,27 @@ function cerrarModal() {
 }
 
 /* ══════════════════════════════════════════════════════
-   CARGA INICIAL — Firebase Firestore
-   GET /api/productos → getProductos()
+  CARGA INICIAL — Google Sheets CSV
+  GET /api/productos → getProductos()
 ══════════════════════════════════════════════════════ */
 async function init() {
   Estado.cargando = true;
   renderSkeletons();
 
   try {
-    // ─── ENDPOINT: GET /api/productos ──────────────
-    // Escucha en tiempo real (se actualiza sin recargar)
-    Estado.unsubscribe = escucharProductos((productos) => {
-      Estado.todos     = productos;
-      Estado.filtrados = [...productos];
-
-      if (Estado.cargando) {
-        renderFiltros(productos);
-        Estado.cargando = false;
-      } else {
-        // Actualización silenciosa en tiempo real
-        renderFiltros(productos);
-      }
-      aplicarFiltros();
-    });
+    const { productos } = await getProductos();
+    Estado.todos = productos;
+    Estado.filtrados = [...productos];
+    renderFiltros(productos);
+    aplicarFiltros();
+    Estado.cargando = false;
 
   } catch (error) {
     console.error('[Productos] Error:', error);
     Estado.cargando = false;
     renderVacio(
-      'No se pudo conectar con Firebase',
-      error.message || 'Verifica tu configuración en firebase-config.js'
+      'No se pudo cargar el catálogo',
+      error.message || 'Verifica la URL pública del CSV de Google Sheets en api.js'
     );
     toastShow('Error al cargar productos. Revisa la consola.', 'error');
   }
