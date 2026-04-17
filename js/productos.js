@@ -193,8 +193,7 @@ function renderTarjeta(p, idx) {
       tabindex="0"
       role="button"
       aria-label="Ver detalle: ${p.nombre}"
-      onclick="window.cxAbrirModal('${p.id}')"
-      onkeydown="if(event.key==='Enter')window.cxAbrirModal('${p.id}')"
+      data-card-id="${p.id}"
     >
       <!-- Imagen / placeholder -->
       <div class="cx-card-img" style="--c:${color}">
@@ -216,7 +215,7 @@ function renderTarjeta(p, idx) {
 
         <div class="cx-card-foot">
           <span class="cx-precio">${formatCOP(p.precio)}</span>
-          <div class="cx-card-buy" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
+          <div class="cx-card-buy" data-card-controls="1">
             <div class="cx-qty" aria-label="Cantidad a agregar">
               <button class="cx-qty-btn" type="button" data-qty-dec aria-label="Disminuir cantidad">−</button>
               <input class="cx-qty-input" type="number" min="1" max="999" value="1" inputmode="numeric" data-qty-input aria-label="Cantidad">
@@ -363,6 +362,37 @@ function cerrarModal() {
 function setupBuyInteractions() {
   const grid = document.getElementById('cx-grid');
   if (grid) {
+    // Abrir modal SOLO si el click fue fuera de los controles (qty/agregar)
+    grid.addEventListener('click', (e) => {
+      const raw = e.target;
+      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      if (!t) return;
+
+      const card = t.closest('.cx-card');
+      if (!card) return;
+
+      // Si el click es en controles, no abrir modal
+      if (t.closest('[data-card-controls]')) return;
+
+      const id = card.getAttribute('data-card-id');
+      if (id) abrirModal(id);
+    });
+
+    // Enter para abrir modal cuando el foco está en la tarjeta (no en inputs/botones)
+    grid.addEventListener('keydown', (e) => {
+      const raw = e.target;
+      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      if (!t) return;
+      if (e.key !== 'Enter') return;
+
+      const card = t.closest('.cx-card');
+      if (!card) return;
+      if (t.closest('[data-card-controls]')) return;
+
+      const id = card.getAttribute('data-card-id');
+      if (id) abrirModal(id);
+    });
+
     grid.addEventListener('click', (e) => {
       const raw = e.target;
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
@@ -375,7 +405,6 @@ function setupBuyInteractions() {
       const qtyBtn = t.closest('[data-qty-dec], [data-qty-inc]');
       if (qtyBtn) {
         e.preventDefault();
-        e.stopPropagation();
         const input = card.querySelector('[data-qty-input]');
         if (!(input instanceof HTMLInputElement)) return;
         const curr = clampInt(input.value, 1, 999);
@@ -388,7 +417,6 @@ function setupBuyInteractions() {
       const addBtn = t.closest('[data-add-cart]');
       if (addBtn) {
         e.preventDefault();
-        e.stopPropagation();
         const id = addBtn.getAttribute('data-id');
         const p = productoPorId(id);
         if (!p) return;
@@ -400,15 +428,6 @@ function setupBuyInteractions() {
         void addBtn.offsetWidth;
         addBtn.classList.add('is-added');
         return;
-      }
-    });
-
-    grid.addEventListener('keydown', (e) => {
-      const t = e.target;
-      if (!(t instanceof HTMLElement)) return;
-      if (e.key !== 'Enter') return;
-      if (t.matches('[data-add-cart]')) {
-        t.click();
       }
     });
   }

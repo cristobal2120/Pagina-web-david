@@ -1,8 +1,8 @@
 /**
- * Carrito CLAVEX (persistente con localStorage)
- * - Añadir/editar/eliminar items
- * - Render dinámico + contador
- * - “Pagar” genera mensaje WhatsApp prellenado
+ * ╔══════════════════════════════════════════════════════╗
+ * ║    CARRITO CLAVEX — Sistema Completo + WhatsApp      ║
+ * ║                   carrito.js (MEJORADO)              ║
+ * ╚══════════════════════════════════════════════════════╝
  */
 
 const CART_KEY = "cx_cart_v1";
@@ -12,6 +12,9 @@ const CFG = {
   waNumero: "573222023040",
 };
 
+/* ══════════════════════════════════════════════════════
+   UTILIDADES
+══════════════════════════════════════════════════════ */
 function clampInt(n, min, max) {
   const x = Number.parseInt(String(n ?? ""), 10);
   if (!Number.isFinite(x)) return min;
@@ -35,9 +38,12 @@ function toast(msg, tipo = "ok") {
   t.querySelector(".cx-toast-msg").textContent = msg;
   t.classList.add("show");
   clearTimeout(window._toastT);
-  window._toastT = setTimeout(() => t.classList.remove("show"), 3200);
+  window._toastT = setTimeout(() => t.classList.remove("show"), 3500);
 }
 
+/* ══════════════════════════════════════════════════════
+   STORAGE: CARRITO
+══════════════════════════════════════════════════════ */
 function readCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
@@ -61,6 +67,9 @@ function writeCart(items) {
   localStorage.setItem(CART_KEY, JSON.stringify({ v: 1, items }));
 }
 
+/* ══════════════════════════════════════════════════════
+   STORAGE: METADATOS (cliente, asesor)
+══════════════════════════════════════════════════════ */
 function readMeta() {
   try {
     const raw = localStorage.getItem(META_KEY);
@@ -85,6 +94,9 @@ function writeMeta(meta) {
   );
 }
 
+/* ══════════════════════════════════════════════════════
+   FORM: LEER Y SINCRONIZAR DATOS
+══════════════════════════════════════════════════════ */
 function getMetaFromUI() {
   const cliente = (document.getElementById("cx-cart-client")?.value || "").trim();
   const asesor = (document.getElementById("cx-cart-advisor")?.value || "").trim();
@@ -99,12 +111,18 @@ function syncMetaToUI() {
   if (inpAsesor && !inpAsesor.value) inpAsesor.value = asesor;
 }
 
+/* ══════════════════════════════════════════════════════
+   CÁLCULOS
+══════════════════════════════════════════════════════ */
 function getTotals(items) {
   const totalQty = items.reduce((acc, it) => acc + (it.qty || 0), 0);
   const total = items.reduce((acc, it) => acc + (it.qty || 0) * (it.precio || 0), 0);
   return { totalQty, total };
 }
 
+/* ══════════════════════════════════════════════════════
+   SETUP: EVENTOS DEL CARRITO
+══════════════════════════════════════════════════════ */
 function ensureCartUI() {
   const btn = document.getElementById("cx-cart-btn");
   const drawer = document.getElementById("cx-cart-drawer");
@@ -112,23 +130,34 @@ function ensureCartUI() {
 
   if (!btn || !drawer || !overlay) return;
 
+  // Sincronizar datos del formulario
   syncMetaToUI();
   drawer.querySelector("#cx-cart-form")?.addEventListener("input", () => {
     writeMeta(getMetaFromUI());
   });
 
+  // Vaciar carrito
+  drawer.querySelector("#cx-cart-clear")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    clearCart();
+  });
+
+  // Abrir carrito
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     openCart();
   });
 
+  // Cerrar carrito
   overlay.addEventListener("click", () => closeCart());
   drawer.querySelector('[data-cart-close="1"]')?.addEventListener("click", () => closeCart());
 
+  // Cerrar con Escape
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeCart();
   });
 
+  // Eventos de cantidad (±) y eliminación
   drawer.addEventListener("click", (e) => {
     const raw = e.target;
     const target = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
@@ -154,11 +183,12 @@ function ensureCartUI() {
     if (delBtn) {
       e.preventDefault();
       removeItem(id);
-      toast("Producto eliminado del carrito", "info");
+      toast("Producto eliminado del carrito ✓", "info");
       return;
     }
   });
 
+  // Edición directa de cantidad (input)
   drawer.addEventListener("input", (e) => {
     const target = e.target;
     if (!(target instanceof HTMLInputElement)) return;
@@ -169,11 +199,16 @@ function ensureCartUI() {
     setQty(id, clampInt(target.value, 1, 999));
   });
 
-  drawer.querySelector("#cx-cart-pay")?.addEventListener("click", () => {
+  // Click en botón "Pagar"
+  drawer.querySelector("#cx-cart-pay")?.addEventListener("click", (e) => {
+    e.preventDefault();
     payWhatsApp();
   });
 }
 
+/* ══════════════════════════════════════════════════════
+   MODAL: ABRIR / CERRAR
+══════════════════════════════════════════════════════ */
 function openCart() {
   const drawer = document.getElementById("cx-cart-drawer");
   const overlay = document.getElementById("cx-cart-overlay");
@@ -181,7 +216,8 @@ function openCart() {
   overlay.classList.add("open");
   drawer.classList.add("open");
   document.body.style.overflow = "hidden";
-  drawer.querySelector("button, input, a")?.focus?.();
+  syncMetaToUI();
+  drawer.querySelector("input")?.focus?.();
 }
 
 function closeCart() {
@@ -193,15 +229,20 @@ function closeCart() {
   document.body.style.overflow = "";
 }
 
+/* ══════════════════════════════════════════════════════
+   ANIMACIÓN: ICON BUMP
+══════════════════════════════════════════════════════ */
 function bumpCartIcon() {
   const btn = document.getElementById("cx-cart-btn");
   if (!btn) return;
   btn.classList.remove("is-bump");
-  // reflow
   void btn.offsetWidth;
   btn.classList.add("is-bump");
 }
 
+/* ══════════════════════════════════════════════════════
+   UI: BADGE DE CANTIDAD
+══════════════════════════════════════════════════════ */
 function updateCartBadge(items) {
   const badge = document.getElementById("cx-cart-count");
   if (!badge) return;
@@ -210,9 +251,11 @@ function updateCartBadge(items) {
   badge.style.display = totalQty > 0 ? "inline-flex" : "none";
 }
 
+/* ══════════════════════════════════════════════════════
+   RENDER: CARRITO COMPLETO
+══════════════════════════════════════════════════════ */
 function renderCart() {
   const items = readCart();
-
   const list = document.getElementById("cx-cart-items");
   const totalEl = document.getElementById("cx-cart-total");
   const empty = document.getElementById("cx-cart-empty");
@@ -225,6 +268,7 @@ function renderCart() {
 
   const { total } = getTotals(items);
 
+  // Estado vacío
   if (!items.length) {
     list.innerHTML = "";
     empty.style.display = "block";
@@ -237,12 +281,12 @@ function renderCart() {
         const subtotal = (it.qty || 0) * (it.precio || 0);
         return `
           <div class="cx-cart-row" data-cart-row="1" data-id="${it.id}">
-            <div class="cx-cart-row-main">
+            <div class="cx-cart-row-main" style="flex:1">
               <div class="cx-cart-row-title">${it.nombre}</div>
               <div class="cx-cart-row-sub">
-                <span class="cx-cart-row-price">${formatCOP(it.precio)}</span>
+                <span>${formatCOP(it.precio)}</span>
                 <span class="cx-cart-row-dot">•</span>
-                <span class="cx-cart-row-subtotal">Subtotal: <strong>${formatCOP(subtotal)}</strong></span>
+                <span>Subtotal: <strong>${formatCOP(subtotal)}</strong></span>
               </div>
             </div>
             <div class="cx-cart-row-actions">
@@ -263,6 +307,9 @@ function renderCart() {
   updateCartBadge(items);
 }
 
+/* ══════════════════════════════════════════════════════
+   OPERACIONES CARRITO: ADD, SET, REMOVE, CLEAR
+══════════════════════════════════════════════════════ */
 function getQty(id) {
   const items = readCart();
   const it = items.find((x) => x.id === id);
@@ -291,6 +338,7 @@ export function addItem(producto, qty) {
   writeCart(items);
   renderCart();
   bumpCartIcon();
+  toast(`✓ ${producto.nombre} agregado al carrito`, "ok");
 }
 
 export function setQty(id, qty) {
@@ -312,61 +360,114 @@ export function removeItem(id) {
 export function clearCart() {
   writeCart([]);
   renderCart();
+  toast("Carrito vaciado", "info");
 }
 
+/* ══════════════════════════════════════════════════════
+   🎯 VALIDACIÓN Y PAGO POR WHATSAPP
+   - Validar que cliente y asesor no estén vacíos
+   - Mostrar alerta clara si falta información
+   - Generar mensaje estructurado
+   - Abrir WhatsApp automáticamente
+══════════════════════════════════════════════════════ */
 export function payWhatsApp() {
   const items = readCart();
+
+  // 1️⃣ Verificar que hay items
   if (!items.length) {
-    toast("Tu carrito está vacío", "info");
+    toast("❌ Tu carrito está vacío. Agrega productos para continuar.", "error");
     return;
   }
 
+  // 2️⃣ Obtener datos del formulario
   const { cliente, asesor } = getMetaFromUI();
+
+  // 3️⃣ VALIDACIÓN: Cliente
   if (!cliente) {
-    toast("Ingresa el nombre del cliente", "info");
-    document.getElementById("cx-cart-client")?.focus?.();
-    return;
-  }
-  if (!asesor) {
-    toast("Ingresa el nombre del asesor", "info");
-    document.getElementById("cx-cart-advisor")?.focus?.();
+    toast("❌ Campo obligatorio: Nombre del cliente", "error");
+    const inp = document.getElementById("cx-cart-client");
+    inp?.focus?.();
+    inp?.scrollIntoView?.({ behavior: "smooth", block: "center" });
     return;
   }
 
+  // 4️⃣ VALIDACIÓN: Asesor
+  if (!asesor) {
+    toast("❌ Campo obligatorio: Nombre del asesor", "error");
+    const inp = document.getElementById("cx-cart-advisor");
+    inp?.focus?.();
+    inp?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  // 5️⃣ Guardar datos en storage
   writeMeta({ cliente, asesor });
 
+  // 6️⃣ Calcular totales
   const { total } = getTotals(items);
+
+  // 7️⃣ Construir detalle del pedido
   const lineas = items
     .map((it, i) => {
       const subtotal = (it.qty || 0) * (it.precio || 0);
       return (
         `*${i + 1}.* ${it.nombre}\n` +
-        `   Cant: ${it.qty}\n` +
-        `   Unit: ${formatCOP(it.precio)}\n` +
+        `   Cantidad: ${it.qty}\n` +
+        `   Unitario: ${formatCOP(it.precio)}\n` +
         `   Subtotal: ${formatCOP(subtotal)}`
       );
     })
     .join("\n\n");
 
+  // 8️⃣ MENSAJE ESTRUCTURADO PARA WHATSAPP
   const mensaje =
-    `📦 *PEDIDO CLAVEX*\n` +
-    `Cliente: *${cliente}*\n` +
-    `Asesor: *${asesor}*\n` +
-    `━━━━━━━━━━━━━━━━━━━━\n` +
-    `*Detalle del pedido:*\n\n` +
+    `📦 *PEDIDO CLAVEX COLOMBIA SAS*\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `👤 *Cliente:* ${cliente}\n` +
+    `👨‍💼 *Asesor:* ${asesor}\n` +
+    `📅 *Fecha:* ${new Date().toLocaleDateString("es-CO")}\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `*📋 DETALLE DEL PEDIDO:*\n\n` +
     `${lineas}\n\n` +
-    `━━━━━━━━━━━━━━━━━━━━\n` +
-    `*TOTAL: ${formatCOP(total)}*`;
+    `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `💰 *TOTAL: ${formatCOP(total)}*\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `✓ Pedido generado desde CLAVEX`;
 
+  // 9️⃣ Codificar para URL y abrir WhatsApp
   const waText = encodeURIComponent(mensaje);
-  window.open(`https://wa.me/${CFG.waNumero}?text=${waText}`, "_blank");
+  const waUrl = `https://wa.me/${CFG.waNumero}?text=${waText}`;
+
+  // Cerrar carrito y mostrar confirmación
+  toast("✅ ¡Pedido listo! Abriendo WhatsApp...", "ok");
+  setTimeout(() => {
+    window.open(waUrl, "_blank");
+  }, 800);
+
+  // Vaciar carrito después de 2 segundos (opcional)
+  setTimeout(() => {
+    closeCart();
+  }, 1500);
 }
 
+/* ══════════════════════════════════════════════════════
+   INIT: INICIALIZAR CARRITO
+══════════════════════════════════════════════════════ */
 export function initCart() {
   ensureCartUI();
   renderCart();
 }
 
-// Exponer helpers a la UI (por si se necesita desde consola)
-window.cxCart = { addItem, setQty, removeItem, clearCart, payWhatsApp, initCart };
-
+/* ══════════════════════════════════════════════════════
+   EXPONER FUNCIONES GLOBALES
+══════════════════════════════════════════════════════ */
+window.cxCart = {
+  addItem,
+  setQty,
+  removeItem,
+  clearCart,
+  payWhatsApp,
+  initCart,
+  openCart,
+  closeCart,
+};
