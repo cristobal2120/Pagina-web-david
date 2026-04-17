@@ -14,6 +14,7 @@
  */
 
 import { getProductos } from './api.js';
+import { addItem, initCart } from './carrito.js';
 
 /* ══════════════════════════════════════════════════════
    ESTADO DE LA SECCIÓN
@@ -113,10 +114,6 @@ function formatCOP(n) {
   }).format(n);
 }
 
-function waLink(nombre) {
-  return `https://wa.me/${CFG.waNumero}?text=${encodeURIComponent(`Hola, quiero el producto *${nombre}*`)}`;
-}
-
 function debounce(fn, ms) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
@@ -131,6 +128,16 @@ function toastShow(msg, tipo = 'ok') {
   t.classList.add('show');
   clearTimeout(window._toastT);
   window._toastT = setTimeout(() => t.classList.remove('show'), 3800);
+}
+
+function clampInt(n, min, max) {
+  const x = Number.parseInt(String(n ?? ''), 10);
+  if (!Number.isFinite(x)) return min;
+  return Math.max(min, Math.min(max, x));
+}
+
+function productoPorId(id) {
+  return Estado.todos.find((x) => x.id === id);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -209,19 +216,16 @@ function renderTarjeta(p, idx) {
 
         <div class="cx-card-foot">
           <span class="cx-precio">${formatCOP(p.precio)}</span>
-          <a
-            href="${waLink(p.nombre)}"
-            target="_blank" rel="noopener noreferrer"
-            class="cx-wa-btn"
-            onclick="event.stopPropagation()"
-            title="Pedir por WhatsApp"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-              <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
-            </svg>
-            Pedir
-          </a>
+          <div class="cx-card-buy" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
+            <div class="cx-qty" aria-label="Cantidad a agregar">
+              <button class="cx-qty-btn" type="button" data-qty-dec aria-label="Disminuir cantidad">−</button>
+              <input class="cx-qty-input" type="number" min="1" max="999" value="1" inputmode="numeric" data-qty-input aria-label="Cantidad">
+              <button class="cx-qty-btn" type="button" data-qty-inc aria-label="Aumentar cantidad">+</button>
+            </div>
+            <button class="cx-add-btn" type="button" data-add-cart data-id="${p.id}" aria-label="Agregar ${p.nombre} al carrito">
+              Agregar
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -333,14 +337,16 @@ function abrirModal(id) {
       <h2 class="cx-modal-title">${p.nombre}</h2>
       <p class="cx-modal-desc">${p.descripcion}</p>
       <div class="cx-modal-precio">${formatCOP(p.precio)}</div>
-      <a href="${waLink(p.nombre)}" target="_blank" rel="noopener noreferrer"
-         class="cx-modal-wa-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-          <path d="M11.983 0C5.373 0 0 5.373 0 11.983c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652A11.917 11.917 0 0011.983 24c6.61 0 11.983-5.373 11.983-11.983C23.966 5.373 18.593 0 11.983 0z"/>
-        </svg>
-        Pedir por WhatsApp
-      </a>
+      <div class="cx-modal-buy">
+        <div class="cx-qty" aria-label="Cantidad a agregar">
+          <button class="cx-qty-btn" type="button" data-modal-qty-dec aria-label="Disminuir cantidad">−</button>
+          <input class="cx-qty-input" type="number" min="1" max="999" value="1" inputmode="numeric" data-modal-qty-input aria-label="Cantidad">
+          <button class="cx-qty-btn" type="button" data-modal-qty-inc aria-label="Aumentar cantidad">+</button>
+        </div>
+        <button class="cx-btn cx-btn-blue" type="button" data-modal-add-cart data-id="${p.id}">
+          Agregar al carrito
+        </button>
+      </div>
     </div>
   `;
 
@@ -352,6 +358,88 @@ function cerrarModal() {
   const m = document.getElementById('cx-modal');
   if (m) m.classList.remove('open');
   document.body.style.overflow = '';
+}
+
+function setupBuyInteractions() {
+  const grid = document.getElementById('cx-grid');
+  if (grid) {
+    grid.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+
+      const card = t.closest('.cx-card');
+      if (!card) return;
+
+      // qty controls
+      if (t.matches('[data-qty-dec], [data-qty-inc]')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const input = card.querySelector('[data-qty-input]');
+        if (!(input instanceof HTMLInputElement)) return;
+        const curr = clampInt(input.value, 1, 999);
+        const next = t.matches('[data-qty-inc]') ? curr + 1 : curr - 1;
+        input.value = String(clampInt(next, 1, 999));
+        return;
+      }
+
+      // add cart
+      if (t.matches('[data-add-cart]')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = t.getAttribute('data-id');
+        const p = productoPorId(id);
+        if (!p) return;
+        const input = card.querySelector('[data-qty-input]');
+        const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
+        addItem(p, qty);
+        toastShow('Agregado al carrito', 'ok');
+        t.classList.remove('is-added');
+        void t.offsetWidth;
+        t.classList.add('is-added');
+        return;
+      }
+    });
+
+    grid.addEventListener('keydown', (e) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (e.key !== 'Enter') return;
+      if (t.matches('[data-add-cart]')) {
+        t.click();
+      }
+    });
+  }
+
+  // modal controls
+  const modal = document.getElementById('cx-modal');
+  modal?.addEventListener('click', (e) => {
+    const t = e.target;
+    if (!(t instanceof HTMLElement)) return;
+    const box = t.closest('.cx-modal-box');
+    if (!box) return;
+
+    if (t.matches('[data-modal-qty-dec], [data-modal-qty-inc]')) {
+      e.preventDefault();
+      const input = box.querySelector('[data-modal-qty-input]');
+      if (!(input instanceof HTMLInputElement)) return;
+      const curr = clampInt(input.value, 1, 999);
+      const next = t.matches('[data-modal-qty-inc]') ? curr + 1 : curr - 1;
+      input.value = String(clampInt(next, 1, 999));
+      return;
+    }
+
+    if (t.matches('[data-modal-add-cart]')) {
+      e.preventDefault();
+      const id = t.getAttribute('data-id');
+      const p = productoPorId(id);
+      if (!p) return;
+      const input = box.querySelector('[data-modal-qty-input]');
+      const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
+      addItem(p, qty);
+      toastShow('Agregado al carrito', 'ok');
+      return;
+    }
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -402,7 +490,9 @@ window.cxFiltrarCat = (cat) => {
    DOM READY
 ══════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  initCart();
   init();
+  setupBuyInteractions();
 
   // Búsqueda con debounce
   const inp = document.getElementById('cx-buscar');
