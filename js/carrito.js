@@ -9,7 +9,7 @@ const CART_KEY = "cx_cart_v1";
 const META_KEY = "cx_cart_meta_v1";
 
 const CFG = {
-  waNumero: "573157096324",
+  waNumero: "573222023040",
 };
 
 function clampInt(n, min, max) {
@@ -130,24 +130,28 @@ function ensureCartUI() {
   });
 
   drawer.addEventListener("click", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLElement)) return;
+    const raw = e.target;
+    const target = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+    if (!target) return;
 
     const row = target.closest("[data-cart-row]");
     const id = row?.getAttribute("data-id");
     if (!id) return;
 
-    if (target.matches("[data-cart-dec]")) {
+    const decBtn = target.closest("[data-cart-dec]");
+    if (decBtn) {
       e.preventDefault();
       setQty(id, getQty(id) - 1);
       return;
     }
-    if (target.matches("[data-cart-inc]")) {
+    const incBtn = target.closest("[data-cart-inc]");
+    if (incBtn) {
       e.preventDefault();
       setQty(id, getQty(id) + 1);
       return;
     }
-    if (target.matches("[data-cart-del]")) {
+    const delBtn = target.closest("[data-cart-del]");
+    if (delBtn) {
       e.preventDefault();
       removeItem(id);
       toast("Producto eliminado del carrito", "info");

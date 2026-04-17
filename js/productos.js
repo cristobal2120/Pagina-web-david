@@ -32,7 +32,7 @@ const Estado = {
    CONFIGURACIÓN
 ══════════════════════════════════════════════════════ */
 const CFG = {
-  waNumero:    '573157096324',
+  waNumero:    '573222023040',
   debounceMs:  320,
   skeletons:   9,
 };
@@ -364,38 +364,41 @@ function setupBuyInteractions() {
   const grid = document.getElementById('cx-grid');
   if (grid) {
     grid.addEventListener('click', (e) => {
-      const t = e.target;
-      if (!(t instanceof HTMLElement)) return;
+      const raw = e.target;
+      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      if (!t) return;
 
       const card = t.closest('.cx-card');
       if (!card) return;
 
       // qty controls
-      if (t.matches('[data-qty-dec], [data-qty-inc]')) {
+      const qtyBtn = t.closest('[data-qty-dec], [data-qty-inc]');
+      if (qtyBtn) {
         e.preventDefault();
         e.stopPropagation();
         const input = card.querySelector('[data-qty-input]');
         if (!(input instanceof HTMLInputElement)) return;
         const curr = clampInt(input.value, 1, 999);
-        const next = t.matches('[data-qty-inc]') ? curr + 1 : curr - 1;
+        const next = qtyBtn.matches('[data-qty-inc]') ? curr + 1 : curr - 1;
         input.value = String(clampInt(next, 1, 999));
         return;
       }
 
       // add cart
-      if (t.matches('[data-add-cart]')) {
+      const addBtn = t.closest('[data-add-cart]');
+      if (addBtn) {
         e.preventDefault();
         e.stopPropagation();
-        const id = t.getAttribute('data-id');
+        const id = addBtn.getAttribute('data-id');
         const p = productoPorId(id);
         if (!p) return;
         const input = card.querySelector('[data-qty-input]');
         const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
         addItem(p, qty);
         toastShow('Agregado al carrito', 'ok');
-        t.classList.remove('is-added');
-        void t.offsetWidth;
-        t.classList.add('is-added');
+        addBtn.classList.remove('is-added');
+        void addBtn.offsetWidth;
+        addBtn.classList.add('is-added');
         return;
       }
     });
@@ -413,24 +416,27 @@ function setupBuyInteractions() {
   // modal controls
   const modal = document.getElementById('cx-modal');
   modal?.addEventListener('click', (e) => {
-    const t = e.target;
-    if (!(t instanceof HTMLElement)) return;
+    const raw = e.target;
+    const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+    if (!t) return;
     const box = t.closest('.cx-modal-box');
     if (!box) return;
 
-    if (t.matches('[data-modal-qty-dec], [data-modal-qty-inc]')) {
+    const qtyBtn = t.closest('[data-modal-qty-dec], [data-modal-qty-inc]');
+    if (qtyBtn) {
       e.preventDefault();
       const input = box.querySelector('[data-modal-qty-input]');
       if (!(input instanceof HTMLInputElement)) return;
       const curr = clampInt(input.value, 1, 999);
-      const next = t.matches('[data-modal-qty-inc]') ? curr + 1 : curr - 1;
+      const next = qtyBtn.matches('[data-modal-qty-inc]') ? curr + 1 : curr - 1;
       input.value = String(clampInt(next, 1, 999));
       return;
     }
 
-    if (t.matches('[data-modal-add-cart]')) {
+    const addBtn = t.closest('[data-modal-add-cart]');
+    if (addBtn) {
       e.preventDefault();
-      const id = t.getAttribute('data-id');
+      const id = addBtn.getAttribute('data-id');
       const p = productoPorId(id);
       if (!p) return;
       const input = box.querySelector('[data-modal-qty-input]');

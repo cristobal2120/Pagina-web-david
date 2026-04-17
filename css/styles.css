@@ -761,6 +761,7 @@ ul     { list-style: none; }
   gap: .55rem;
   align-items: center;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 .cx-qty {
   display: inline-flex;
@@ -794,6 +795,13 @@ ul     { list-style: none; }
   font-weight: 700;
   letter-spacing: .02em;
   appearance: textfield;
+}
+
+/* Responsive del bloque "agregar" (sin romper el precio) */
+@media (max-width: 768px) {
+  .cx-card-foot { align-items: flex-start; }
+  .cx-card-buy { gap: .5rem; }
+  .cx-add-btn { padding: 0 .8rem; }
 }
 .cx-qty-input::-webkit-outer-spin-button,
 .cx-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
