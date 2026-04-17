@@ -747,6 +747,7 @@ ul     { list-style: none; }
   justify-content: space-between;
   gap: .65rem;
   margin-top: auto;
+  flex-wrap: wrap; /* permite que el bloque de compra baje sin romperse */
 }
 .cx-precio {
   font-family: var(--font-head);
@@ -754,6 +755,7 @@ ul     { list-style: none; }
   color: var(--white);
   letter-spacing: .02em;
   line-height: 1;
+  flex: 1 1 auto;
 }
 /* Controls: cantidad + agregar */
 .cx-card-buy {
@@ -762,6 +764,8 @@ ul     { list-style: none; }
   align-items: center;
   flex-shrink: 0;
   flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 .cx-qty {
   display: inline-flex;
@@ -802,6 +806,18 @@ ul     { list-style: none; }
   .cx-card-foot { align-items: flex-start; }
   .cx-card-buy { gap: .5rem; }
   .cx-add-btn { padding: 0 .8rem; }
+}
+
+/* Cuando el grid queda en 4 columnas, las cards se estrechan:
+   forzamos el bloque de compra a ocupar una fila completa (no se "daña"). */
+@media (min-width: 1280px) {
+  .cx-card-foot { align-items: flex-start; }
+  .cx-card-buy {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+  .cx-add-btn { flex: 1 1 auto; }
 }
 .cx-qty-input::-webkit-outer-spin-button,
 .cx-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
