@@ -93,31 +93,34 @@ ul     { list-style: none; }
   gap: 1rem;
 }
 
-/* LOGO */
+/* LOGO — área fija ~48px alto (equivalente a CLAVEX + Colombia SAS en texto) */
 .cx-logo {
   display: flex;
   align-items: center;
   gap: .75rem;
   flex-shrink: 0;
 }
-.cx-logo-img { height: 44px; width: auto; }
-.cx-logo-txt { display: flex; flex-direction: column; line-height: 1.1; }
-.cx-logo-name {
-  font-family: var(--font-head);
-  font-size: 1.4rem;
-  letter-spacing: .07em;
+.cx-logo-mark {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 48px;
+  line-height: 0;
 }
-.cx-logo-name .o { color: var(--blue-light); }
-.cx-logo-name .v { color: var(--white); }
-.cx-logo-name .e { color: var(--blue-accent); }
-.cx-logo-name .x { color: var(--blue-main); }
-.cx-logo-sub {
-  font-family: var(--font-cond);
-  font-size: .6rem;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--gray);
+.cx-logo-img {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: min(200px, 50vw);
+  object-fit: contain;
+  object-position: left center;
+}
+.cx-logo-mark--footer {
+  height: 40px;
+}
+.cx-logo-mark--footer .cx-logo-img {
+  height: 40px;
+  max-width: min(180px, 55vw);
 }
 
 /* NAV LINKS */
@@ -1435,6 +1438,13 @@ footer {
   font-weight: 800;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+.cx-cart-pdf-hint {
+  margin: 0 0 .65rem;
+  font-size: .72rem;
+  line-height: 1.35;
+  color: var(--gray);
+  text-align: center;
 }
 .cx-cart-total-row strong {
   color: var(--blue-accent);

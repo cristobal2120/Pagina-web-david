@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="CLAVEX COLOMBIA SAS – Distribución de productos de ferretería de alta calidad para todo Colombia."/>
   <title>CLAVEX COLOMBIA SAS – Ferretería Industrial</title>
+  <link rel="icon" href="css/icono.png" type="image/png" sizes="any">
+  <link rel="apple-touch-icon" href="css/icono.png">
 
   <!-- Fuentes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,20 +25,11 @@
   <div class="cx-container">
     <nav class="cx-nav">
 
-      <!-- Logo CLAVEX con colores de la marca -->
+      <!-- Logo empresa -->
       <a href="#inicio" class="cx-logo" aria-label="CLAVEX Colombia SAS - Inicio">
-        <!--
-          🖼️ PARA USAR TU LOGO REAL:
-          Reemplaza el bloque de texto coloreado por:
-          <img src="assets/logo-clavex.png" alt="CLAVEX Colombia SAS" class="cx-logo-img">
-          (sube el logo a la carpeta /assets/)
-        -->
-        <div class="cx-logo-txt">
-          <span class="cx-logo-name">
-            <span class="o">CLA</span><span class="v">V</span><span class="e">E</span><span class="x">X</span>
-          </span>
-          <span class="cx-logo-sub">Colombia SAS</span>
-        </div>
+        <span class="cx-logo-mark">
+          <img src="css/logoempresa.png" alt="CLAVEX Colombia SAS" class="cx-logo-img" width="200" height="48" decoding="async">
+        </span>
       </a>
 
       <!-- Navegación desktop -->
@@ -119,6 +112,7 @@
       <span>Total</span>
       <strong id="cx-cart-total">$0</strong>
     </div>
+    <p class="cx-cart-pdf-hint" id="cx-cart-pdf-hint">Al confirmar se descargará el PDF del pedido y se abrirá WhatsApp.</p>
     <button class="cx-btn cx-btn-blue" type="button" id="cx-cart-pay">
       Pagar
     </button>
@@ -474,12 +468,9 @@
       <!-- Brand -->
       <div>
         <a href="#inicio" class="cx-logo" style="display:inline-flex">
-          <div class="cx-logo-txt">
-            <span class="cx-logo-name" style="font-size:1.2rem">
-              <span class="o">CLA</span><span class="v">V</span><span class="e">E</span><span class="x">X</span>
-            </span>
-            <span class="cx-logo-sub">Colombia SAS</span>
-          </div>
+          <span class="cx-logo-mark cx-logo-mark--footer">
+            <img src="css/logoempresa.png" alt="CLAVEX Colombia SAS" class="cx-logo-img" width="200" height="48" decoding="async">
+          </span>
         </a>
         <p class="cx-footer-brand-p">
           Distribución de productos de ferretería de alta calidad para toda Colombia. Tu aliado confiable en construcción y mantenimiento.
@@ -563,11 +554,14 @@
 <!-- ══════════════════════════════════════════════
      SCRIPTS
      ORDEN IMPORTANTE:
+     0. jsPDF + AutoTable   (PDF vectorial del pedido — sin html2canvas)
      1. firebase-config.js  (inicializa Firebase + exporta db)
      2. api.js              (funciones Firestore)
-     3. carrito.js          (estado carrito + WhatsApp)
+     3. carrito.js          (estado carrito + WhatsApp + PDF)
      4. productos.js        (UI + consume api.js)
 ═══════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="module" src="js/firebase-config.js"></script>
 <script type="module" src="js/api.js"></script>
 <script type="module" src="js/carrito.js"></script>
