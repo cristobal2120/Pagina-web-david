@@ -120,172 +120,9 @@ function getTotals(items) {
   return { totalQty, total };
 }
 
-function pedidoPdfFilename() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  return `Pedido_CLAVEX_${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.pdf`;
-}
-
 function pedidoRefCode() {
   const d = new Date();
   return `CX-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}-${String(d.getHours()).padStart(2, "0")}${String(d.getMinutes()).padStart(2, "0")}${String(d.getSeconds()).padStart(2, "0")}`;
-}
-
-function assetUrl(relPath) {
-  try {
-    return new URL(relPath, window.location.href).href;
-  } catch {
-    return relPath;
-  }
-}
-
-async function fetchImageAsDataUrl(relPath) {
-  try {
-    const url = assetUrl(relPath);
-    if (typeof url === "string" && url.startsWith("file:")) return null;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    return await new Promise((resolve) => {
-      const fr = new FileReader();
-      fr.onload = () => resolve(fr.result);
-      fr.onerror = () => resolve(null);
-      fr.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
-
-function addPdfImage(doc, dataUrl, x, y, w, h) {
-  if (!dataUrl || typeof dataUrl !== "string") return;
-  const fmt = /data:image\/jpe?g/i.test(dataUrl) ? "JPEG" : "PNG";
-  try {
-    doc.addImage(dataUrl, fmt, x, y, w, h);
-  } catch (e) {
-    console.warn("[CLAVEX] PDF imagen:", e);
-  }
-}
-
-/**
- * PDF con jsPDF + AutoTable (texto/tablas vectoriales; evita PDF en blanco de html2canvas).
- * Requiere jspdf.umd + jspdf.plugin.autotable en index.html.
- * @param {string} [refPedido] - Misma referencia que en WhatsApp; si no se pasa, se genera una nueva.
- */
-export async function downloadPedidoPdf(items, cliente, asesor, refPedido) {
-  const jspdfMod = typeof window !== "undefined" ? window.jspdf : null;
-  if (!jspdfMod?.jsPDF) {
-    throw new Error("jsPDF no está disponible");
-  }
-
-  const { jsPDF } = jspdfMod;
-  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-  if (typeof doc.autoTable !== "function") {
-    throw new Error("jspdf-autotable no está cargado");
-  }
-
-  const pageW = doc.internal.pageSize.getWidth();
-  const margin = 14;
-  const { total } = getTotals(items);
-  const ref = refPedido || pedidoRefCode();
-  const fecha = new Date().toLocaleString("es-CO", {
-    dateStyle: "long",
-    timeStyle: "short",
-  });
-
-  const [iconData, logoData] = await Promise.all([
-    fetchImageAsDataUrl("css/icono.png"),
-    fetchImageAsDataUrl("css/logoempresa.png"),
-  ]);
-
-  const headRowH = 16;
-  let y = margin;
-  if (iconData) {
-    addPdfImage(doc, iconData, margin, y, 9, 9);
-  }
-  if (logoData) {
-    addPdfImage(doc, logoData, pageW - margin - 48, y, 48, 12);
-  }
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(30, 90, 168);
-  const titleX = iconData ? margin + 11 : margin;
-  doc.text("PEDIDO — CLAVEX COLOMBIA SAS", titleX, y + 6);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(100);
-  doc.text("Distribución de ferretería industrial · Colombia", titleX, y + 10);
-
-  y = margin + headRowH;
-  doc.setFontSize(9.5);
-  doc.setTextColor(35);
-  doc.text(`Referencia: ${ref}`, margin, y);
-  y += 5;
-  doc.text(`Cliente: ${cliente}`, margin, y);
-  y += 5;
-  doc.text(`Asesor: ${asesor}`, margin, y);
-  y += 5;
-  doc.text(`Fecha: ${fecha}`, margin, y);
-  y += 7;
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(30, 90, 168);
-  doc.text("Detalle del pedido", margin, y);
-  y += 4;
-
-  const body = items.map((it, i) => {
-    const sub = (it.qty || 0) * (it.precio || 0);
-    return [
-      String(i + 1),
-      String(it.nombre ?? ""),
-      String(it.qty ?? ""),
-      formatCOP(it.precio),
-      formatCOP(sub),
-    ];
-  });
-
-  doc.autoTable({
-    startY: y,
-    head: [["#", "Producto", "Cant.", "V. unitario", "Subtotal"]],
-    body,
-    theme: "grid",
-    styles: { fontSize: 9, cellPadding: 1.8, valign: "middle", overflow: "linebreak" },
-    headStyles: {
-      fillColor: [232, 240, 250],
-      textColor: [25, 25, 25],
-      fontStyle: "bold",
-    },
-    columnStyles: {
-      0: { halign: "center", cellWidth: 11 },
-      1: { halign: "left" },
-      2: { halign: "center", cellWidth: 14 },
-      3: { halign: "right", cellWidth: 26 },
-      4: { halign: "right", fontStyle: "bold", cellWidth: 28 },
-    },
-    margin: { left: margin, right: margin },
-    tableLineColor: [200, 210, 220],
-    tableLineWidth: 0.2,
-  });
-
-  const last = doc.lastAutoTable || doc.previousAutoTable;
-  const finalY = last?.finalY ?? y + 40;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(0);
-  doc.text(`TOTAL: ${formatCOP(total)}`, pageW - margin, finalY + 10, { align: "right" });
-
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(7.5);
-  doc.setTextColor(110);
-  const nota = doc.splitTextToSize(
-    "Documento generado desde el sitio web CLAVEX. El pedido debe confirmarse por WhatsApp con la empresa.",
-    pageW - 2 * margin
-  );
-  doc.text(nota, margin, finalY + 18);
-
-  doc.save(pedidoPdfFilename());
 }
 
 /* ══════════════════════════════════════════════════════
@@ -538,7 +375,7 @@ export function clearCart() {
    - Generar mensaje estructurado
    - Abrir WhatsApp automáticamente
 ══════════════════════════════════════════════════════ */
-export async function payWhatsApp() {
+export function payWhatsApp() {
   const items = readCart();
 
   // 1️⃣ Verificar que hay items
@@ -575,15 +412,6 @@ export async function payWhatsApp() {
   const { total } = getTotals(items);
   const refPedido = pedidoRefCode();
 
-  // 6b️⃣ PDF del pedido final (antes de WhatsApp; misma ref. que el mensaje)
-  let pdfOk = false;
-  try {
-    await downloadPedidoPdf(items, cliente, asesor, refPedido);
-    pdfOk = true;
-  } catch (err) {
-    console.warn("[CLAVEX] PDF:", err);
-  }
-
   // 7️⃣ Construir detalle del pedido
   const lineas = items
     .map((it, i) => {
@@ -618,12 +446,7 @@ export async function payWhatsApp() {
   const waUrl = `https://wa.me/${CFG.waNumero}?text=${waText}`;
 
   // Cerrar carrito y mostrar confirmación
-  toast(
-    pdfOk
-      ? "✅ PDF descargado. Abriendo WhatsApp…"
-      : "✅ Abriendo WhatsApp… (no se pudo generar el PDF)",
-    pdfOk ? "ok" : "info"
-  );
+  toast("✅ ¡Pedido listo! Abriendo WhatsApp…", "ok");
   setTimeout(() => {
     window.open(waUrl, "_blank");
   }, 800);
@@ -651,7 +474,6 @@ window.cxCart = {
   removeItem,
   clearCart,
   payWhatsApp,
-  downloadPedidoPdf,
   initCart,
   openCart,
   closeCart,

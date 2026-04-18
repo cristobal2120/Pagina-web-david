@@ -1439,13 +1439,6 @@ footer {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.cx-cart-pdf-hint {
-  margin: 0 0 .65rem;
-  font-size: .72rem;
-  line-height: 1.35;
-  color: var(--gray);
-  text-align: center;
-}
 .cx-cart-total-row strong {
   color: var(--blue-accent);
   font-size: 1.15rem;
