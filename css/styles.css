@@ -47,6 +47,20 @@
   --header-h: 76px;
 }
 
+[data-theme="light"] {
+  --black: #f4f7fb;
+  --black2: #eaf0f8;
+  --black3: #dde7f4;
+  --card-bg: #ffffff;
+  --white: #16212f;
+  --gray: #516174;
+  --gray-light: #4a5d72;
+  --border: rgba(30, 90, 150, 0.18);
+  --blue-soft: rgba(45, 126, 194, 0.1);
+  --sh: 0 8px 28px rgba(15, 35, 60, 0.12);
+  --sh-blue: 0 10px 32px rgba(45, 126, 194, 0.2);
+}
+
 /* ─────────────────────────────────────────────────
    RESET
 ───────────────────────────────────────────────── */
@@ -157,6 +171,29 @@ ul     { list-style: none; }
 
 .cx-btn-nav { flex-shrink: 0; }
 
+.cx-theme-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(45, 126, 194, 0.08);
+  color: var(--blue-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--t);
+  flex-shrink: 0;
+}
+.cx-theme-btn:hover {
+  border-color: var(--blue-light);
+  background: rgba(45, 126, 194, 0.15);
+  transform: translateY(-1px);
+}
+.cx-theme-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* HAMBURGER */
 .cx-hamburger {
   display: none;
@@ -199,6 +236,17 @@ ul     { list-style: none; }
 }
 .cx-mobile-menu a:hover { color: var(--blue-light); background: rgba(45, 126, 194, .08); }
 .cx-mobile-menu.open { display: flex; }
+
+[data-theme="light"] .cx-header {
+  background: rgba(244, 247, 251, .92);
+}
+[data-theme="light"] .cx-header.scrolled {
+  background: rgba(244, 247, 251, .98);
+  box-shadow: 0 10px 28px rgba(20, 44, 70, 0.12);
+}
+[data-theme="light"] .cx-mobile-menu {
+  background: #f0f5fc;
+}
 
 /* ─────────────────────────────────────────────────
    BOTONES — TEMA AZUL
@@ -251,7 +299,7 @@ ul     { list-style: none; }
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding-top: var(--header-h);
+  padding-top: calc(var(--header-h) - 6px);
   position: relative;
   overflow: hidden;
 }
@@ -281,7 +329,7 @@ ul     { list-style: none; }
   position: relative;
   z-index: 2;
   width: 100%;
-  padding-top: 3rem;
+  padding-top: 1.6rem;
   padding-bottom: 6rem;
 }
 
@@ -468,6 +516,7 @@ ul     { list-style: none; }
   line-height: 1.45;
   margin: 0 0 .5rem;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -734,6 +783,7 @@ ul     { list-style: none; }
   color: var(--white);
   margin-bottom: .45rem;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -745,6 +795,7 @@ ul     { list-style: none; }
   flex: 1;
   margin-bottom: .95rem;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -1583,6 +1634,7 @@ footer {
   .cx-logo-mark { height: 44px; }
   .cx-logo-img  { height: 44px; max-width: min(210px, 60vw); }
   .cx-cart-btn  { width: 44px; height: 44px; }
+  .cx-theme-btn { width: 42px; height: 42px; }
 
   .cx-hero-stats {
     position: static;
@@ -1597,7 +1649,14 @@ footer {
     width: 100%;
   }
 
-  #inicio > .cx-container { padding-bottom: 2rem; }
+  #inicio {
+    min-height: auto;
+    padding-top: var(--header-h);
+  }
+  #inicio > .cx-container {
+    padding-top: .45rem;
+    padding-bottom: 1.8rem;
+  }
 
   .cx-contact-grid  { grid-template-columns: 1fr; gap: 2rem; }
   .cx-form-row      { grid-template-columns: 1fr; }
@@ -1609,7 +1668,7 @@ footer {
 
   #cx-toast         { left: 1rem; right: 1rem; max-width: none; bottom: 1rem; }
 
-  #cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  #cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
 }
 
 @media (max-width: 480px) {
@@ -1621,15 +1680,18 @@ footer {
 
   .cx-mobile-menu a { padding: 1.05rem 1.25rem; }
   .cx-logo-img { max-width: min(190px, 62vw); }
+  .cx-nav { gap: .5rem; }
 
-  .cx-hero-title      { font-size: 2.6rem; }
+  .cx-hero-title      { font-size: 2.4rem; }
+  .cx-hero-sub        { font-size: .92rem; max-width: 100%; }
   .cx-hero-cta        { flex-direction: column; align-items: stretch; }
   .cx-hero-cta .cx-btn { justify-content: center; }
   .cx-hero-stats      { gap: 1rem 1.5rem; }
+  .cx-hero-stats .cx-stat { min-width: 84px; text-align: center; }
 
-  #cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  #cx-grid { grid-template-columns: 1fr; gap: .95rem; }
 
-  .cx-card-img { height: 150px; }
+  .cx-card-img { height: 170px; }
   .cx-card-body { padding: .95rem 1rem 1rem; }
   .cx-precio { font-size: 1.15rem; }
   .cx-card-buy { flex-direction: column; align-items: stretch; }
@@ -1639,7 +1701,9 @@ footer {
   .cx-toolbar       { flex-direction: column; }
   .cx-search-wrap   { max-width: 100%; }
 
-  .cx-form          { padding: 1.5rem 1.25rem; }
+  .cx-form          { padding: 1.35rem 1rem; }
+  .cx-contact-item  { gap: .7rem; }
+  .cx-contact-icon  { width: 40px; height: 40px; }
 
   .cx-footer-brand-p { max-width: 100%; }
 
