@@ -245,6 +245,87 @@ function bumpCartIcon() {
   btn.classList.add("is-bump");
 }
 
+function playAddToCartFx() {
+  const btn = document.getElementById("cx-cart-btn");
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+
+  for (let i = 0; i < 6; i += 1) {
+    const p = document.createElement("span");
+    p.className = "cx-fx-spark";
+    p.style.left = `${cx}px`;
+    p.style.top = `${cy}px`;
+    p.style.setProperty("--dx", `${(Math.random() - 0.5) * 70}px`);
+    p.style.setProperty("--dy", `${-35 - Math.random() * 75}px`);
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 760);
+  }
+}
+
+function animateProductToCart(sourceEl, producto) {
+  if (!(sourceEl instanceof HTMLElement)) return;
+  const cartBtn = document.getElementById("cx-cart-btn");
+  if (!cartBtn) return;
+
+  const from = sourceEl.getBoundingClientRect();
+  const to = cartBtn.getBoundingClientRect();
+  const fly = document.createElement("div");
+  fly.className = "cx-fly-card";
+
+  const startW = Math.max(48, Math.min(from.width, 120));
+  const startH = Math.max(38, Math.min(from.height, 90));
+  const startX = from.left + from.width / 2 - startW / 2;
+  const startY = from.top + from.height / 2 - startH / 2;
+  const endX = to.left + to.width / 2 - startW / 2;
+  const endY = to.top + to.height / 2 - startH / 2;
+
+  fly.style.left = `${startX}px`;
+  fly.style.top = `${startY}px`;
+  fly.style.width = `${startW}px`;
+  fly.style.height = `${startH}px`;
+  fly.style.setProperty("--tx", `${endX - startX}px`);
+  fly.style.setProperty("--ty", `${endY - startY}px`);
+
+  const img = document.createElement("img");
+  img.alt = producto?.nombre || "Producto";
+  img.src = producto?.imagen || "css/icono.png";
+  fly.appendChild(img);
+
+  document.body.appendChild(fly);
+  setTimeout(() => fly.remove(), 760);
+}
+
+function playOrderSentFx() {
+  const burst = document.createElement("div");
+  burst.className = "cx-order-burst";
+  burst.textContent = "Pedido enviado - CLAVEX";
+  document.body.appendChild(burst);
+  setTimeout(() => burst.remove(), 1300);
+}
+
+function playDeliveryPrepFx() {
+  const wrap = document.createElement("div");
+  wrap.className = "cx-delivery-fx";
+  wrap.innerHTML = `
+    <div class="cx-delivery-box">
+      <div class="cx-delivery-msg">Preparando tu entrega ferretera</div>
+      <div class="cx-delivery-road">
+        <div class="cx-delivery-truck">
+          <div class="cx-truck-box"></div>
+          <div class="cx-truck-cabin"></div>
+          <span class="cx-truck-wheel w1"></span>
+          <span class="cx-truck-wheel w2"></span>
+          <span class="cx-truck-wheel w3"></span>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 1550);
+}
+
 /* ══════════════════════════════════════════════════════
    UI: BADGE DE CANTIDAD
 ══════════════════════════════════════════════════════ */
@@ -321,7 +402,7 @@ function getQty(id) {
   return it ? it.qty : 0;
 }
 
-export function addItem(producto, qty) {
+export function addItem(producto, qty, sourceEl = null) {
   const items = readCart();
   const q = clampInt(qty, 1, 999);
   const id = String(producto?.id ?? "");
@@ -342,7 +423,9 @@ export function addItem(producto, qty) {
 
   writeCart(items);
   renderCart();
+  animateProductToCart(sourceEl, producto);
   bumpCartIcon();
+  playAddToCartFx();
   toast(`✓ ${producto.nombre} agregado al carrito`, "ok");
 }
 
@@ -446,10 +529,12 @@ export function payWhatsApp() {
   const waUrl = `https://wa.me/${CFG.waNumero}?text=${waText}`;
 
   // Cerrar carrito y mostrar confirmación
+  playOrderSentFx();
+  playDeliveryPrepFx();
   toast("✅ ¡Pedido listo! Abriendo WhatsApp…", "ok");
   setTimeout(() => {
     window.open(waUrl, "_blank");
-  }, 800);
+  }, 1300);
 
   // Vaciar carrito después de 2 segundos (opcional)
   setTimeout(() => {

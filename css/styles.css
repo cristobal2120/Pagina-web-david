@@ -889,6 +889,181 @@ ul     { list-style: none; }
 .cx-add-btn.is-added { animation: cxAdded .35s ease; }
 @keyframes cxAdded { 0% { transform: scale(1); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
+.cx-fx-spark {
+  position: fixed;
+  z-index: 3000;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #ffd166 0%, #ff6a00 55%, rgba(255,106,0,0) 72%);
+  box-shadow: 0 0 12px rgba(255, 136, 0, .45);
+  animation: cxSparkFly .7s ease-out forwards;
+}
+@keyframes cxSparkFly {
+  0% { transform: translate(-50%, -50%) scale(.8); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -70px))) scale(.2); opacity: 0; }
+}
+
+.cx-order-burst {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 3200;
+  pointer-events: none;
+  font-family: var(--font-cond);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, var(--orange), #ffa235);
+  border: 1px solid rgba(255, 200, 140, .65);
+  border-radius: 999px;
+  padding: .55rem 1rem;
+  box-shadow: 0 10px 28px rgba(255,106,0,.35);
+  animation: cxOrderBurst 1.2s ease forwards;
+}
+@keyframes cxOrderBurst {
+  0% { opacity: 0; transform: translate(-50%, 14px) scale(.85); }
+  20% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  70% { opacity: 1; transform: translate(-50%, -6px) scale(1.03); }
+  100% { opacity: 0; transform: translate(-50%, -22px) scale(.95); }
+}
+
+.cx-fly-card {
+  position: fixed;
+  z-index: 3300;
+  pointer-events: none;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.28);
+  box-shadow: 0 14px 34px rgba(0,0,0,.35);
+  transform-origin: center center;
+  animation: cxFlyToCart .72s cubic-bezier(.22, .82, .25, 1) forwards;
+}
+.cx-fly-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@keyframes cxFlyToCart {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    filter: saturate(1);
+  }
+  75% {
+    opacity: .95;
+    transform: translate(var(--tx), var(--ty)) scale(.44) rotate(-6deg);
+    filter: saturate(1.18);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty)) scale(.22) rotate(-10deg);
+    filter: saturate(1.25);
+  }
+}
+
+.cx-delivery-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 3400;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 80%, rgba(255,106,0,.18), rgba(0,0,0,.65) 55%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 9vh;
+  animation: cxDeliveryFade .2s ease;
+}
+.cx-delivery-box {
+  width: min(440px, 90vw);
+  background: rgba(20, 26, 34, .9);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 16px;
+  padding: .8rem .95rem;
+  box-shadow: 0 16px 34px rgba(0,0,0,.45);
+}
+.cx-delivery-msg {
+  font-family: var(--font-cond);
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #ffd9b2;
+  margin-bottom: .5rem;
+  text-align: center;
+}
+.cx-delivery-road {
+  position: relative;
+  height: 70px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  overflow: hidden;
+}
+.cx-delivery-road::after {
+  content: '';
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: 11px;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.78) 0 26px, transparent 26px 46px);
+  animation: cxRoadDash .95s linear infinite;
+}
+.cx-delivery-truck {
+  position: absolute;
+  left: -96px;
+  bottom: 16px;
+  width: 86px;
+  height: 34px;
+  animation: cxTruckDrive 1.5s cubic-bezier(.22,.75,.2,1) forwards;
+}
+.cx-truck-box {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 54px;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ff7b17, #ff9d41);
+}
+.cx-truck-cabin {
+  position: absolute;
+  right: 0;
+  top: 8px;
+  width: 32px;
+  height: 18px;
+  border-radius: 4px 5px 4px 4px;
+  background: linear-gradient(135deg, #2b7ec1, #3d9cff);
+}
+.cx-truck-wheel {
+  position: absolute;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1c1f24;
+  border: 2px solid #6f7781;
+  animation: cxWheelSpin .33s linear infinite;
+}
+.cx-truck-wheel.w1 { left: 10px; }
+.cx-truck-wheel.w2 { left: 48px; }
+.cx-truck-wheel.w3 { right: 5px; }
+
+@keyframes cxRoadDash { to { transform: translateX(-46px); } }
+@keyframes cxWheelSpin { to { transform: rotate(360deg); } }
+@keyframes cxTruckDrive {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(min(440px, 90vw) + 130px)); }
+}
+@keyframes cxDeliveryFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* SKELETON */
 .cx-skeleton { pointer-events: none; }
 .sk-box {
@@ -1779,13 +1954,18 @@ footer {
   .cx-hero-stats      { gap: 1rem 1.5rem; }
   .cx-hero-stats .cx-stat { min-width: 84px; text-align: center; }
 
-  #cx-grid { grid-template-columns: 1fr; gap: .95rem; }
+  #cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 
-  .cx-card-img { height: 170px; }
-  .cx-card-body { padding: .95rem 1rem 1rem; }
-  .cx-precio { font-size: 1.15rem; }
+  .cx-card-img { height: 142px; }
+  .cx-card-body { padding: .85rem .8rem .9rem; }
+  .cx-card-name { font-size: .95rem; line-height: 1.18; }
+  .cx-card-desc { font-size: .75rem; margin-bottom: .6rem; }
+  .cx-precio { font-size: 1rem; }
   .cx-card-buy { flex-direction: column; align-items: stretch; }
   .cx-qty { justify-content: space-between; }
+  .cx-qty-btn { width: 30px; height: 30px; }
+  .cx-qty-input { height: 30px; width: 38px; font-size: .86rem; }
+  .cx-add-btn { height: 30px; font-size: .68rem; padding: 0 .55rem; }
   .cx-add-btn { width: 100%; justify-content: center; }
 
   .cx-toolbar       { flex-direction: column; }

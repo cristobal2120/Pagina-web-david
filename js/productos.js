@@ -422,8 +422,8 @@ function setupBuyInteractions() {
         if (!p) return;
         const input = card.querySelector('[data-qty-input]');
         const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
-        addItem(p, qty);
-        toastShow('Agregado al carrito', 'ok');
+        const sourceEl = card.querySelector('.cx-card-img img') || card.querySelector('.cx-card-img');
+        addItem(p, qty, sourceEl);
         addBtn.classList.remove('is-added');
         void addBtn.offsetWidth;
         addBtn.classList.add('is-added');
@@ -460,8 +460,8 @@ function setupBuyInteractions() {
       if (!p) return;
       const input = box.querySelector('[data-modal-qty-input]');
       const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
-      addItem(p, qty);
-      toastShow('Agregado al carrito', 'ok');
+      const sourceEl = box.querySelector('.cx-modal-img img') || box.querySelector('.cx-modal-img');
+      addItem(p, qty, sourceEl);
       return;
     }
   });
