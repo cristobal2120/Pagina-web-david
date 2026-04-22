@@ -695,6 +695,51 @@ ul     { list-style: none; }
   gap: 1.5rem;
 }
 
+.cx-paginacion {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.cx-page-btn {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 .65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(45, 126, 194, 0.25);
+  background: var(--card-bg);
+  color: var(--gray);
+  font-family: var(--font-cond);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  transition: var(--t);
+}
+.cx-page-btn:hover:not(:disabled) {
+  border-color: var(--blue-main);
+  color: var(--blue-light);
+  background: rgba(45, 126, 194, 0.08);
+}
+.cx-page-btn.activo {
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-light));
+  border-color: var(--blue-accent);
+}
+.cx-page-btn.nav {
+  min-width: 84px;
+}
+.cx-page-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.cx-page-dots {
+  color: var(--gray);
+  font-weight: 700;
+  padding: 0 .2rem;
+}
+
 /* CARD */
 .cx-card {
   background: var(--card-bg);

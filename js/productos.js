@@ -22,6 +22,7 @@ import { addItem, initCart } from './carrito.js';
 const Estado = {
   todos:          [],
   filtrados:      [],
+  paginaActual:   1,
   categoriaActiva:'todos',
   busqueda:       '',
   cargando:       false,
@@ -35,6 +36,7 @@ const CFG = {
   waNumero:    '573222023040',
   debounceMs:  320,
   skeletons:   9,
+  productosPorPagina: 30,
 };
 
 const CATEGORIAS_LABEL = {
@@ -167,6 +169,7 @@ function renderSkeletons() {
 ══════════════════════════════════════════════════════ */
 function renderVacio(msg = '', sub = '') {
   const grid = document.getElementById('cx-grid');
+  const paginacion = document.getElementById('cx-paginacion');
   if (!grid) return;
   grid.innerHTML = `
     <div class="cx-empty-state">
@@ -175,6 +178,7 @@ function renderVacio(msg = '', sub = '') {
       <p class="cx-empty-sub">${sub || 'Intenta con otra búsqueda o categoría'}</p>
     </div>
   `;
+  if (paginacion) paginacion.innerHTML = '';
 }
 
 /* ══════════════════════════════════════════════════════
@@ -234,7 +238,65 @@ function renderTarjeta(p, idx) {
 /* ══════════════════════════════════════════════════════
    RENDER: GRID COMPLETO
 ══════════════════════════════════════════════════════ */
-function renderGrid(productos) {
+function getSlicePagina(productos, pagina = 1) {
+  const totalItems = productos.length;
+  const totalPaginas = Math.max(1, Math.ceil(totalItems / CFG.productosPorPagina));
+  const paginaActual = clampInt(pagina, 1, totalPaginas);
+  const inicio = (paginaActual - 1) * CFG.productosPorPagina;
+  const fin = inicio + CFG.productosPorPagina;
+  return {
+    items: productos.slice(inicio, fin),
+    totalItems,
+    totalPaginas,
+    paginaActual,
+  };
+}
+
+function renderPaginacion(totalPaginas, paginaActual) {
+  const cont = document.getElementById('cx-paginacion');
+  if (!cont) return;
+  if (totalPaginas <= 1) {
+    cont.innerHTML = '';
+    return;
+  }
+
+  const btn = (p) => `
+    <button
+      class="cx-page-btn ${p === paginaActual ? 'activo' : ''}"
+      type="button"
+      data-page="${p}"
+      ${p === paginaActual ? 'aria-current="page"' : ''}
+      aria-label="Ir a página ${p}"
+    >
+      ${p}
+    </button>
+  `;
+
+  const nums = [];
+  if (totalPaginas <= 7) {
+    for (let p = 1; p <= totalPaginas; p++) nums.push(btn(p));
+  } else {
+    nums.push(btn(1));
+    if (paginaActual > 3) nums.push('<span class="cx-page-dots">…</span>');
+    const start = Math.max(2, paginaActual - 1);
+    const end = Math.min(totalPaginas - 1, paginaActual + 1);
+    for (let p = start; p <= end; p++) nums.push(btn(p));
+    if (paginaActual < totalPaginas - 2) nums.push('<span class="cx-page-dots">…</span>');
+    nums.push(btn(totalPaginas));
+  }
+
+  cont.innerHTML = `
+    <button class="cx-page-btn nav" type="button" data-page="${paginaActual - 1}" ${paginaActual === 1 ? 'disabled' : ''} aria-label="Página anterior">
+      Anterior
+    </button>
+    ${nums.join('')}
+    <button class="cx-page-btn nav" type="button" data-page="${paginaActual + 1}" ${paginaActual === totalPaginas ? 'disabled' : ''} aria-label="Página siguiente">
+      Siguiente
+    </button>
+  `;
+}
+
+function renderGrid(productos, pagina = 1) {
   const grid     = document.getElementById('cx-grid');
   const contador = document.getElementById('cx-contador');
   if (!grid) return;
@@ -248,15 +310,19 @@ function renderGrid(productos) {
     return;
   }
 
-  grid.innerHTML = productos.map((p, i) => renderTarjeta(p, i)).join('');
+  const pag = getSlicePagina(productos, pagina);
+  Estado.paginaActual = pag.paginaActual;
+  grid.innerHTML = pag.items.map((p, i) => renderTarjeta(p, i)).join('');
 
   requestAnimationFrame(() => {
     grid.querySelectorAll('.cx-card').forEach(c => c.classList.add('visible'));
   });
 
   if (contador) {
-    contador.textContent = `${productos.length} producto${productos.length !== 1 ? 's' : ''}`;
+    contador.textContent = `${pag.totalItems} producto${pag.totalItems !== 1 ? 's' : ''} · Página ${pag.paginaActual}/${pag.totalPaginas}`;
   }
+
+  renderPaginacion(pag.totalPaginas, pag.paginaActual);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -306,7 +372,8 @@ function aplicarFiltros() {
   }
 
   Estado.filtrados = r;
-  renderGrid(r);
+  Estado.paginaActual = 1;
+  renderGrid(r, 1);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -511,6 +578,12 @@ window.cxFiltrarCat = (cat) => {
   aplicarFiltros();
 };
 
+window.cxIrPagina = (pagina) => {
+  renderGrid(Estado.filtrados, pagina);
+  const sec = document.getElementById('productos');
+  sec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 /* ══════════════════════════════════════════════════════
    DOM READY
 ══════════════════════════════════════════════════════ */
@@ -525,6 +598,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const doBuscar = debounce(v => { Estado.busqueda = v; aplicarFiltros(); }, CFG.debounceMs);
     inp.addEventListener('input', e => doBuscar(e.target.value));
   }
+
+  document.getElementById('cx-paginacion')?.addEventListener('click', (e) => {
+    const raw = e.target;
+    const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+    const btn = t?.closest('[data-page]');
+    if (!btn) return;
+    const next = clampInt(btn.getAttribute('data-page'), 1, Math.max(1, Math.ceil(Estado.filtrados.length / CFG.productosPorPagina)));
+    if (next === Estado.paginaActual) return;
+    window.cxIrPagina(next);
+  });
 
   // Cerrar modal con Escape o clic en overlay
   document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
