@@ -1621,6 +1621,60 @@ footer {
   .cx-contact-grid  { gap: 2.5rem; }
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --section-py: 4rem;
+    --container-px: 1.4rem;
+    --header-h: 86px;
+  }
+
+  .cx-nav {
+    height: var(--header-h);
+    gap: .85rem;
+  }
+  .cx-logo-mark { height: 50px; }
+  .cx-logo-img  { height: 50px; max-width: min(220px, 34vw); }
+  .cx-nav-links { gap: 1rem; }
+  .cx-nav-links a { font-size: .9rem; letter-spacing: .06em; }
+  .cx-btn { padding: .72rem 1.1rem; font-size: .86rem; }
+  .cx-cart-btn,
+  .cx-theme-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  #inicio {
+    min-height: auto;
+    padding-top: var(--header-h);
+  }
+  #inicio > .cx-container {
+    padding-top: .8rem;
+    padding-bottom: 2.4rem;
+  }
+  .cx-hero-title { font-size: clamp(3rem, 6vw, 4.2rem); }
+  .cx-hero-sub   { max-width: 95%; }
+  .cx-hero-stats {
+    position: static;
+    transform: none;
+    margin-top: 1.8rem;
+    justify-content: space-around;
+    width: 100%;
+    gap: 1.2rem;
+  }
+
+  #cx-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .cx-card-img { height: 180px; }
+
+  .cx-contact-grid {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+  .cx-form { padding: 1.6rem; }
+}
+
 @media (max-width: 768px) {
   :root {
     --section-py: 3.5rem;
@@ -1669,6 +1723,42 @@ footer {
   #cx-toast         { left: 1rem; right: 1rem; max-width: none; bottom: 1rem; }
 
   #cx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --header-h: 74px;
+  }
+
+  .cx-nav {
+    height: var(--header-h);
+    gap: .7rem;
+  }
+  .cx-logo-img { max-width: min(205px, 52vw); }
+
+  #inicio > .cx-container {
+    padding-top: .65rem;
+    padding-bottom: 2rem;
+  }
+  .cx-hero-title { font-size: 2.9rem; }
+  .cx-hero-sub { max-width: 92%; }
+  .cx-hero-cta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: .7rem;
+  }
+  .cx-hero-cta .cx-btn {
+    flex: 1 1 calc(50% - .35rem);
+    justify-content: center;
+  }
+
+  #cx-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .95rem;
+  }
+  .cx-card-img { height: 160px; }
+
+  .cx-contact-grid { gap: 1.6rem; }
 }
 
 @media (max-width: 480px) {
