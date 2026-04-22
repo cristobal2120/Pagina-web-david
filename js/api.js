@@ -32,6 +32,7 @@ function mapearProducto(row, idx) {
   return {
     id,
     nombre: limpiarTexto(row.nombre),
+    marca: limpiarTexto(row.marca),
     descripcion: limpiarTexto(row.descripcion),
     precio: parsePrecio(row.precio),
     categoria: limpiarTexto(row.categoria).toLowerCase() || "otros",
@@ -50,7 +51,7 @@ function normalizarHeaders(row = []) {
 function construirFilasConHeader(csv) {
   const raw = Papa.parse(csv, { header: false, skipEmptyLines: true });
   const rows = raw.data || [];
-  const expected = ["id", "nombre", "descripcion", "precio", "categoria", "imagen_url"];
+  const expected = ["id", "nombre", "marca", "descripcion", "precio", "categoria", "imagen_url"];
 
   const headerIndex = rows.findIndex((row) => {
     const headers = normalizarHeaders(row);
@@ -59,7 +60,7 @@ function construirFilasConHeader(csv) {
 
   if (headerIndex === -1) {
     throw new ApiError(
-      "No se encontraron encabezados válidos en el CSV (id,nombre,descripcion,precio,categoria,imagen_url)",
+      "No se encontraron encabezados válidos en el CSV (id,nombre,marca,descripcion,precio,categoria,imagen_url)",
       "invalid-csv-headers"
     );
   }
@@ -97,6 +98,7 @@ export async function getProductos(filtros = {}) {
         const tieneContenido =
           limpiarTexto(row.id) ||
           limpiarTexto(row.nombre) ||
+          limpiarTexto(row.marca) ||
           limpiarTexto(row.descripcion) ||
           limpiarTexto(row.precio) ||
           limpiarTexto(row.categoria) ||

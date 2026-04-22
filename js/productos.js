@@ -24,6 +24,7 @@ const Estado = {
   filtrados:      [],
   paginaActual:   1,
   categoriaActiva:'todos',
+  marcaActiva:    'todas',
   busqueda:       '',
   cargando:       false,
   unsubscribe:    null,
@@ -214,6 +215,9 @@ function renderTarjeta(p, idx) {
         <span class="cx-cat-pill" style="color:${color};background:${color}1a;border-color:${color}30">
           ${label}
         </span>
+        <span class="cx-brand-pill">
+          Marca: ${p.marca || 'Sin marca'}
+        </span>
         <h3 class="cx-card-name">${p.nombre}</h3>
         <p class="cx-card-desc">${p.descripcion}</p>
 
@@ -353,22 +357,61 @@ function renderFiltros(productos) {
   }).join('');
 }
 
+function renderMarcas(productos) {
+  const contenedor = document.getElementById('cx-marcas');
+  if (!contenedor) return;
+
+  const marcas = ['todas', ...new Set(productos.map((p) => (p.marca || '').trim()).filter(Boolean).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' })))];
+
+  contenedor.innerHTML = marcas.map((marca) => {
+    const n = marca === 'todas'
+      ? productos.length
+      : productos.filter((p) => (p.marca || '').trim().toLowerCase() === marca.toLowerCase()).length;
+    const activo = marca === Estado.marcaActiva;
+    const label = marca === 'todas' ? 'Todas las marcas' : marca;
+    return `
+      <button
+        class="cx-filtro-btn ${activo ? 'activo' : ''}"
+        data-marca="${marca}"
+        onclick="window.cxFiltrarMarca('${marca.replace(/'/g, "\\'")}')"
+      >
+        ${label}
+        <span class="cx-filtro-count">${n}</span>
+      </button>
+    `;
+  }).join('');
+}
+
 /* ══════════════════════════════════════════════════════
    FILTRAR + BUSCAR
 ══════════════════════════════════════════════════════ */
 function aplicarFiltros() {
-  let r = [...Estado.todos];
+  let base = [...Estado.todos];
 
   if (Estado.categoriaActiva !== 'todos') {
-    r = r.filter(p => p.categoria === Estado.categoriaActiva);
+    base = base.filter(p => p.categoria === Estado.categoriaActiva);
   }
   if (Estado.busqueda.trim()) {
     const q = Estado.busqueda.toLowerCase().trim();
-    r = r.filter(p =>
+    base = base.filter(p =>
       p.nombre.toLowerCase().includes(q) ||
       p.descripcion.toLowerCase().includes(q) ||
-      (p.categoria || '').includes(q)
+      (p.categoria || '').includes(q) ||
+      (p.marca || '').toLowerCase().includes(q)
     );
+  }
+
+  renderMarcas(base);
+  const marcasDisponibles = new Set(base.map((p) => (p.marca || '').trim().toLowerCase()).filter(Boolean));
+  if (Estado.marcaActiva !== 'todas' && !marcasDisponibles.has(Estado.marcaActiva.toLowerCase())) {
+    Estado.marcaActiva = 'todas';
+    renderMarcas(base);
+  }
+
+  let r = [...base];
+  if (Estado.marcaActiva !== 'todas') {
+    const marcaQ = Estado.marcaActiva.toLowerCase();
+    r = r.filter((p) => (p.marca || '').trim().toLowerCase() === marcaQ);
   }
 
   Estado.filtrados = r;
@@ -574,6 +617,14 @@ window.cxFiltrarCat = (cat) => {
     b.classList.toggle('activo', activo);
     const c = CAT_COLORES[cat] || '#ff6a00';
     activo ? b.style.setProperty('--fc', c) : b.style.removeProperty('--fc');
+  });
+  aplicarFiltros();
+};
+
+window.cxFiltrarMarca = (marca) => {
+  Estado.marcaActiva = marca;
+  document.querySelectorAll('#cx-marcas .cx-filtro-btn').forEach((b) => {
+    b.classList.toggle('activo', b.dataset.marca === marca);
   });
   aplicarFiltros();
 };

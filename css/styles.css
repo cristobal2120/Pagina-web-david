@@ -645,6 +645,12 @@ ul     { list-style: none; }
   flex-wrap: wrap;
   gap: .45rem;
 }
+#cx-marcas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  width: 100%;
+}
 .cx-filtro-btn {
   padding: .35rem .85rem;
   border-radius: 100px;
@@ -832,6 +838,21 @@ ul     { list-style: none; }
   border-radius: 100px;
   padding: .13rem .6rem;
   margin-bottom: .6rem;
+  align-self: flex-start;
+}
+.cx-brand-pill {
+  display: inline-block;
+  font-family: var(--font-cond);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  background: rgba(45, 126, 194, 0.08);
+  border: 1px solid rgba(45, 126, 194, 0.18);
+  border-radius: 100px;
+  padding: .14rem .55rem;
+  margin-bottom: .5rem;
   align-self: flex-start;
 }
 .cx-card-name {
