@@ -397,7 +397,12 @@ function renderPanelProductosCategoria(cat) {
   if (!pag.items.length) {
     return `
       <div class="cx-cat-products-head">
-        <div class="cx-cat-products-title">Productos de ${label}</div>
+        <div class="cx-cat-products-head-left">
+          <button class="cx-cat-back-btn" type="button" onclick="cxVolverCategorias()" aria-label="Volver a categorías">
+            ← Volver
+          </button>
+          <div class="cx-cat-products-title">Productos de ${label}</div>
+        </div>
       </div>
       <div class="cx-cat-products-empty">No hay resultados para los filtros actuales.</div>
       <div id="cx-paginacion-inline" class="cx-paginacion cx-paginacion-inline" aria-label="Paginación de productos"></div>
@@ -406,7 +411,12 @@ function renderPanelProductosCategoria(cat) {
 
   return `
     <div class="cx-cat-products-head">
-      <div class="cx-cat-products-title">Productos de ${label}</div>
+      <div class="cx-cat-products-head-left">
+        <button class="cx-cat-back-btn" type="button" onclick="cxVolverCategorias()" aria-label="Volver a categorías">
+          ← Volver
+        </button>
+        <div class="cx-cat-products-title">Productos de ${label}</div>
+      </div>
       <div class="cx-cat-products-meta">${pag.totalItems} producto${pag.totalItems !== 1 ? 's' : ''}</div>
     </div>
     <div class="cx-cat-products-list" style="--accent:${color}">
@@ -682,6 +692,9 @@ function abrirModal(id) {
   const waHref = `https://wa.me/${CFG.waNumero}?text=${encodeURIComponent(msgWA)}`;
 
   body.innerHTML = `
+    <button class="cx-modal-back" type="button" onclick="cxCerrarModal()" aria-label="Volver">
+      ← Volver
+    </button>
     <div class="cx-modal-img" style="--c:${color}">
       ${p.imagen
         ? `<img src="${p.imagen}" alt="${p.nombre}">`
@@ -737,6 +750,9 @@ function setupBuyInteractions() {
       if (row && !t.closest('[data-card-controls], [data-open-modal]')) {
         grid.querySelectorAll('.cx-product-row.is-selected').forEach((x) => x.classList.remove('is-selected'));
         row.classList.add('is-selected');
+        const id = row.getAttribute('data-product-id');
+        if (id) abrirModal(id);
+        return;
       }
 
       const catToggle = t.closest('[data-cat-toggle]');
@@ -768,6 +784,13 @@ function setupBuyInteractions() {
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
       if (!t) return;
       if (e.key !== 'Enter') return;
+
+      const row = t.closest('.cx-product-row');
+      if (row && !t.closest('[data-card-controls]')) {
+        const id = row.getAttribute('data-product-id');
+        if (id) abrirModal(id);
+        return;
+      }
 
       const catToggle = t.closest('[data-cat-toggle]');
       if (catToggle) {

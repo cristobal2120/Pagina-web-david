@@ -926,6 +926,32 @@ ul     { list-style: none; }
   gap: .65rem;
   margin-bottom: .55rem;
 }
+.cx-cat-products-head-left {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-width: 0;
+}
+.cx-cat-back-btn {
+  height: 34px;
+  padding: 0 .75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(45, 126, 194, 0.08);
+  color: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: var(--t);
+  flex-shrink: 0;
+}
+.cx-cat-back-btn:hover {
+  background: rgba(45, 126, 194, 0.16);
+  border-color: rgba(61, 156, 255, .35);
+  transform: translateY(-1px);
+}
+.cx-cat-products-title { min-width: 0; }
 .cx-cat-products-title {
   font-family: var(--font-cond);
   font-size: .96rem;
@@ -1562,6 +1588,29 @@ ul     { list-style: none; }
   border-color: var(--blue-main);
 }
 
+.cx-modal-back {
+  position: absolute;
+  top: .9rem;
+  left: .9rem;
+  z-index: 6;
+  height: 34px;
+  padding: 0 .85rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(45, 126, 194, 0.1);
+  color: var(--white);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: var(--t);
+}
+.cx-modal-back:hover {
+  background: rgba(45, 126, 194, 0.18);
+  border-color: rgba(61, 156, 255, .35);
+  transform: translateY(-1px);
+}
+
 .cx-modal-img {
   height: 280px;
   border-radius: var(--r-lg) var(--r-lg) 0 0;
@@ -1659,6 +1708,7 @@ ul     { list-style: none; }
   }
   #cx-modal.open .cx-modal-box { transform: translateY(0); }
   .cx-modal-close { top: .8rem; right: .8rem; }
+  .cx-modal-back  { top: .8rem; left: .8rem; }
   .cx-modal-img { height: 280px; border-radius: 20px 20px 0 0; }
   .cx-modal-info { padding: 1.15rem 1.15rem 1.35rem; }
 }
@@ -1763,7 +1813,7 @@ ul     { list-style: none; }
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--gray);
+  color: var(--cart-muted);
   margin-bottom: .15rem;
 }
 .cx-contact-val { font-size: .95rem; color: var(--white); }
