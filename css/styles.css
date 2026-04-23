@@ -630,6 +630,7 @@ ul     { list-style: none; }
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .cx-search-wrap {
@@ -731,6 +732,7 @@ ul     { list-style: none; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 #cx-grid.cx-grid-list {
   display: flex;
@@ -750,6 +752,10 @@ ul     { list-style: none; }
   align-items: center;
   flex-wrap: wrap;
   gap: .4rem;
+}
+.cx-paginacion-inline {
+  margin-top: .75rem;
+  justify-content: flex-end;
 }
 .cx-page-btn {
   min-width: 36px;
@@ -819,6 +825,7 @@ ul     { list-style: none; }
 .cx-cat-card {
   border-left-width: 4px;
   transition: transform .3s ease, opacity .3s ease, filter .3s ease, box-shadow .3s ease, border-color .3s ease;
+  min-width: 0;
 }
 .cx-cat-card:hover,
 .cx-cat-card:focus-visible {
@@ -960,6 +967,7 @@ ul     { list-style: none; }
   opacity: 0;
   transform: translateY(14px);
   position: relative;
+  min-width: 0;
 }
 [data-theme="light"] #productos::before {
   background: rgba(0,0,0,0.25);
@@ -2088,6 +2096,10 @@ footer {
   color: var(--cart-text);
 }
 .cx-cart-sub { color: var(--cart-muted); font-size: .85rem; margin-top: .25rem; }
+[data-theme="light"] .cx-cart-sub {
+  color: #2f4258;
+  font-weight: 600;
+}
 .cx-cart-close {
   width: 36px;
   height: 36px;
@@ -2505,6 +2517,9 @@ footer {
   .cx-product-row-actions {
     justify-content: space-between;
   }
+  .cx-paginacion-inline {
+    justify-content: center;
+  }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
@@ -2631,6 +2646,8 @@ footer {
 
   .cx-toolbar       { flex-direction: column; }
   .cx-search-wrap   { max-width: 100%; }
+  .cx-filtros-fila  { width: 100%; }
+  #cx-marcas        { width: 100%; }
 
   .cx-form          { padding: 1.35rem 1rem; }
   .cx-contact-item  { gap: .7rem; }
@@ -2640,6 +2657,10 @@ footer {
 
   #cx-modal         { padding: .75rem; }
   .cx-modal-img     { height: 150px; }
+  .cx-paginacion-inline {
+    margin-top: .6rem;
+    justify-content: center;
+  }
 }
 
 @media (min-width: 1400px) {
@@ -2683,5 +2704,104 @@ footer {
 @media (min-width: 1280px) {
   #cx-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────────────
+   AJUSTE FINAL RESPONSIVE (consistencia global)
+───────────────────────────────────────────────── */
+#productos.cx-view-categorias #cx-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
+}
+
+#productos.cx-view-productos #cx-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.cx-product-row {
+  grid-template-columns: clamp(70px, 7vw, 92px) minmax(0, 1fr) auto;
+  grid-template-areas: "media main actions";
+  align-items: center;
+  column-gap: .75rem;
+}
+.cx-product-row-media { grid-area: media; }
+.cx-product-row-main { grid-area: main; min-width: 0; }
+.cx-product-row-actions {
+  grid-area: actions;
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .5rem;
+}
+.cx-product-row .cx-add-btn {
+  flex: 0 0 auto;
+  min-width: 128px;
+}
+
+.cx-product-row.is-selected {
+  transform: scale(1.008);
+}
+.cx-product-row.is-selected .cx-product-row-actions {
+  border-color: rgba(61, 156, 255, .35);
+}
+
+@media (max-width: 1024px) {
+  #productos.cx-view-categorias #cx-grid,
+  #productos.cx-view-productos #cx-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cx-product-row {
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-areas:
+      "media main"
+      "actions actions";
+    align-items: start;
+    row-gap: .5rem;
+  }
+  .cx-product-row-media {
+    width: 72px;
+    height: 72px;
+  }
+  .cx-product-row-actions {
+    width: 100%;
+    justify-content: space-between;
+    border-left: none;
+    border-top: 1px solid rgba(45, 126, 194, .22);
+    padding-left: 0;
+    padding-top: .45rem;
+    flex-wrap: nowrap;
+  }
+  .cx-product-row .cx-qty {
+    flex: 0 0 120px;
+    width: 120px;
+  }
+  .cx-product-row .cx-add-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .cx-product-row {
+    grid-template-columns: 60px minmax(0, 1fr);
+    padding: .62rem;
+  }
+  .cx-product-row-media {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+  }
+  .cx-product-row-actions {
+    gap: .45rem;
+  }
+  .cx-product-row .cx-qty {
+    flex: 0 0 108px;
+    width: 108px;
   }
 }

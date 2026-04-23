@@ -400,6 +400,7 @@ function renderPanelProductosCategoria(cat) {
         <div class="cx-cat-products-title">Productos de ${label}</div>
       </div>
       <div class="cx-cat-products-empty">No hay resultados para los filtros actuales.</div>
+      <div id="cx-paginacion-inline" class="cx-paginacion cx-paginacion-inline" aria-label="Paginación de productos"></div>
     `;
   }
 
@@ -411,6 +412,7 @@ function renderPanelProductosCategoria(cat) {
     <div class="cx-cat-products-list" style="--accent:${color}">
       ${pag.items.map((p, i) => renderFilaProducto(p, i)).join('')}
     </div>
+    <div id="cx-paginacion-inline" class="cx-paginacion cx-paginacion-inline" aria-label="Paginación de productos"></div>
   `;
 }
 
@@ -431,8 +433,8 @@ function getSlicePagina(productos, pagina = 1) {
   };
 }
 
-function renderPaginacion(totalPaginas, paginaActual) {
-  const cont = document.getElementById('cx-paginacion');
+function renderPaginacion(totalPaginas, paginaActual, targetId = 'cx-paginacion') {
+  const cont = document.getElementById(targetId);
   if (!cont) return;
   if (totalPaginas <= 1) {
     cont.innerHTML = '';
@@ -555,8 +557,12 @@ function renderVistaCategorias() {
 
   if (contador) contador.textContent = contadorTxt;
   if (paginacion) {
-    if (expandida) renderPaginacion(totalPaginas, Estado.paginaActual);
-    else paginacion.innerHTML = '';
+    if (expandida) {
+      paginacion.innerHTML = '';
+      renderPaginacion(totalPaginas, Estado.paginaActual, 'cx-paginacion-inline');
+    } else {
+      paginacion.innerHTML = '';
+    }
   }
 }
 
@@ -927,11 +933,13 @@ document.addEventListener('DOMContentLoaded', () => {
     inp.addEventListener('input', e => doBuscar(e.target.value));
   }
 
-  document.getElementById('cx-paginacion')?.addEventListener('click', (e) => {
+  document.addEventListener('click', (e) => {
     const raw = e.target;
     const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
     const btn = t?.closest('[data-page]');
     if (!btn) return;
+    const onPagination = t?.closest('#cx-paginacion, #cx-paginacion-inline');
+    if (!onPagination) return;
     const next = clampInt(btn.getAttribute('data-page'), 1, Math.max(1, Math.ceil(Estado.filtrados.length / CFG.productosPorPagina)));
     if (next === Estado.paginaActual) return;
     window.cxIrPagina(next);
