@@ -170,20 +170,23 @@ function triggerAddFx(sourceEl, color = '#3d9cff') {
   const root = document.body;
   if (!root) return;
 
-  for (let i = 0; i < 8; i++) {
+  const icons = ['🔩', '⚙️', '🔨'];
+  const count = 10;
+  const cx = rect.left + (rect.width / 2);
+  const cy = rect.top + (rect.height / 2);
+
+  for (let i = 0; i < count; i++) {
     const p = document.createElement('span');
-    const dx = (Math.random() * 120) - 60;
-    const dy = -40 - (Math.random() * 80);
-    const size = 6 + Math.random() * 7;
-    p.className = 'cx-hw-particle';
-    p.style.left = `${rect.left + (rect.width / 2)}px`;
-    p.style.top = `${rect.top + (rect.height / 2)}px`;
-    p.style.width = `${size}px`;
-    p.style.height = `${size}px`;
+    const dx = (Math.random() * 140) - 70;
+    const dy = -40 - (Math.random() * 110);
+    const rot = (Math.random() * 360) - 180;
+    p.className = 'cx-forge-emoji';
+    p.textContent = icons[(Math.random() * icons.length) | 0];
+    p.style.left = `${cx}px`;
+    p.style.top = `${cy}px`;
     p.style.setProperty('--dx', `${dx}px`);
     p.style.setProperty('--dy', `${dy}px`);
-    p.style.setProperty('--pc', color);
-    p.style.borderRadius = i % 2 === 0 ? '50%' : '3px';
+    p.style.setProperty('--rot', `${rot}deg`);
     root.appendChild(p);
     setTimeout(() => p.remove(), 700);
   }
