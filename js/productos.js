@@ -23,7 +23,7 @@ const Estado = {
   todos:          [],
   filtrados:      [],
   paginaActual:   1,
-  categoriaActiva:'todos',
+  categoriaExpandida: null,
   marcaActiva:    'todas',
   busqueda:       '',
   cargando:       false,
@@ -143,6 +143,18 @@ function productoPorId(id) {
   return Estado.todos.find((x) => x.id === id);
 }
 
+function categoriaDeProducto(p) {
+  return (p.categoria || 'otros').toLowerCase();
+}
+
+function nombreCategoria(cat) {
+  return CATEGORIAS_LABEL[cat] || cat || 'Otros';
+}
+
+function colorCategoria(cat) {
+  return CAT_COLORES[cat] || '#ff6a00';
+}
+
 /* ══════════════════════════════════════════════════════
    RENDER: SKELETON CARDS
 ══════════════════════════════════════════════════════ */
@@ -186,9 +198,10 @@ function renderVacio(msg = '', sub = '') {
    RENDER: TARJETA DE PRODUCTO
 ══════════════════════════════════════════════════════ */
 function renderTarjeta(p, idx) {
-  const color = CAT_COLORES[p.categoria] || '#ff6a00';
-  const icono = CAT_ICONOS[p.categoria] || CAT_ICONOS.otros;
-  const label = CATEGORIAS_LABEL[p.categoria] || p.categoria;
+  const cat = categoriaDeProducto(p);
+  const color = colorCategoria(cat);
+  const icono = CAT_ICONOS[cat] || CAT_ICONOS.otros;
+  const label = nombreCategoria(cat);
   const delay = Math.min(idx * 55, 450);
 
   return `
@@ -236,6 +249,134 @@ function renderTarjeta(p, idx) {
         </div>
       </div>
     </article>
+  `;
+}
+
+function getCategoriasResumen(productos = []) {
+  const mapa = new Map();
+  productos.forEach((p) => {
+    const cat = categoriaDeProducto(p);
+    if (!mapa.has(cat)) {
+      mapa.set(cat, { cat, nombre: nombreCategoria(cat), color: colorCategoria(cat), icono: CAT_ICONOS[cat] || CAT_ICONOS.otros, total: 0 });
+    }
+    mapa.get(cat).total += 1;
+  });
+  return [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+}
+
+function renderTarjetaCategoria(c, idx, abierta = false, panelHTML = '') {
+  const delay = Math.min(idx * 65, 450);
+  return `
+    <article
+      class="cx-card cx-cat-card ${abierta ? 'is-open' : ''}"
+      style="animation-delay:${delay}ms;--cat-c:${c.color}"
+      data-cat-block="${c.cat}"
+    >
+      <button
+        class="cx-cat-card-head"
+        type="button"
+        data-cat-toggle="${c.cat}"
+        aria-label="Mostrar productos de ${c.nombre}"
+        aria-expanded="${abierta ? 'true' : 'false'}"
+      >
+        <div class="cx-cat-card-icon">${c.icono}</div>
+        <div class="cx-cat-card-info">
+          <h3 class="cx-cat-card-name">${c.nombre}</h3>
+          <p class="cx-cat-card-count">${c.total} producto${c.total !== 1 ? 's' : ''}</p>
+        </div>
+        <span class="cx-cat-card-dot" aria-hidden="true"></span>
+      </button>
+      <div class="cx-cat-expand ${abierta ? 'open' : ''}">
+        <div class="cx-cat-expand-inner">
+          ${panelHTML}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderFilaProducto(p, idx) {
+  const cat = categoriaDeProducto(p);
+  const color = colorCategoria(cat);
+  const icono = CAT_ICONOS[cat] || CAT_ICONOS.otros;
+  const delay = Math.min(idx * 45, 380);
+  return `
+    <article class="cx-product-row" style="animation-delay:${delay}ms;--accent:${color}" data-product-id="${p.id}" role="listitem">
+      <button class="cx-product-row-media" type="button" data-open-modal="${p.id}" aria-label="Ver detalle de ${p.nombre}">
+        ${p.imagen
+          ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
+          : `<div class="cx-placeholder" style="color:${color}">${icono}</div>`
+        }
+      </button>
+      <div class="cx-product-row-main">
+        <button class="cx-product-row-name" type="button" data-open-modal="${p.id}">
+          ${p.nombre}
+        </button>
+        <div class="cx-product-row-brand">${p.marca || 'Sin marca'}</div>
+        <p class="cx-product-row-desc">${p.descripcion || 'Sin descripción disponible.'}</p>
+      </div>
+      <div class="cx-product-row-price">${formatCOP(p.precio)}</div>
+      <div class="cx-product-row-actions" data-card-controls="1">
+        <div class="cx-qty" aria-label="Cantidad a agregar">
+          <button class="cx-qty-btn" type="button" data-qty-dec aria-label="Disminuir cantidad">−</button>
+          <input class="cx-qty-input" type="number" min="1" max="999" value="1" inputmode="numeric" data-qty-input aria-label="Cantidad">
+          <button class="cx-qty-btn" type="button" data-qty-inc aria-label="Aumentar cantidad">+</button>
+        </div>
+        <button class="cx-add-btn" type="button" data-add-cart data-id="${p.id}" aria-label="Agregar ${p.nombre} al carrito">
+          Agregar al carrito
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function getProductosExpandidos() {
+  if (!Estado.categoriaExpandida) return { base: [], filtrados: [] };
+  const base = Estado.todos.filter((p) => categoriaDeProducto(p) === Estado.categoriaExpandida);
+  let filtrados = [...base];
+
+  if (Estado.busqueda.trim()) {
+    const q = Estado.busqueda.toLowerCase().trim();
+    filtrados = filtrados.filter((p) =>
+      p.nombre.toLowerCase().includes(q) ||
+      (p.descripcion || '').toLowerCase().includes(q) ||
+      (p.marca || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (Estado.marcaActiva !== 'todas') {
+    const marcaQ = Estado.marcaActiva.toLowerCase();
+    filtrados = filtrados.filter((p) => (p.marca || '').trim().toLowerCase() === marcaQ);
+  }
+
+  return { base, filtrados };
+}
+
+function renderPanelProductosCategoria(cat) {
+  const { base, filtrados } = getProductosExpandidos();
+  const color = colorCategoria(cat);
+  const label = nombreCategoria(cat);
+  const pag = getSlicePagina(filtrados, Estado.paginaActual);
+  Estado.paginaActual = pag.paginaActual;
+  Estado.filtrados = filtrados;
+
+  if (!pag.items.length) {
+    return `
+      <div class="cx-cat-products-head">
+        <div class="cx-cat-products-title">Productos de ${label}</div>
+      </div>
+      <div class="cx-cat-products-empty">No hay resultados para los filtros actuales.</div>
+    `;
+  }
+
+  return `
+    <div class="cx-cat-products-head">
+      <div class="cx-cat-products-title">Productos de ${label}</div>
+      <div class="cx-cat-products-meta">${pag.totalItems} producto${pag.totalItems !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="cx-cat-products-list" style="--accent:${color}">
+      ${pag.items.map((p, i) => renderFilaProducto(p, i)).join('')}
+    </div>
   `;
 }
 
@@ -329,32 +470,68 @@ function renderGrid(productos, pagina = 1) {
   renderPaginacion(pag.totalPaginas, pag.paginaActual);
 }
 
+function setVistaProductosUI(expandida) {
+  const productosSec = document.getElementById('productos');
+  const buscarWrap = document.querySelector('.cx-search-wrap');
+  const marcas = document.getElementById('cx-marcas');
+  const filtros = document.getElementById('cx-filtros');
+  const buscador = document.getElementById('cx-buscar');
+
+  productosSec?.classList.toggle('cx-view-productos', expandida);
+  productosSec?.classList.toggle('cx-view-categorias', !expandida);
+  buscarWrap?.classList.toggle('is-hidden', !expandida);
+  marcas?.classList.toggle('is-hidden', !expandida);
+
+  if (filtros) filtros.innerHTML = '';
+  if (buscador && !expandida) buscador.value = '';
+}
+
+function renderVistaCategorias() {
+  const grid = document.getElementById('cx-grid');
+  const contador = document.getElementById('cx-contador');
+  const paginacion = document.getElementById('cx-paginacion');
+  if (!grid) return;
+
+  const categorias = getCategoriasResumen(Estado.todos);
+  if (!categorias.length) {
+    renderVacio('Sin categorías disponibles', 'No hay productos cargados en el catálogo.');
+    return;
+  }
+
+  const expandida = Estado.categoriaExpandida;
+  setVistaProductosUI(Boolean(expandida));
+  let contadorTxt = `${categorias.length} categor${categorias.length !== 1 ? 'ías' : 'ía'}`;
+  let totalPaginas = 0;
+
+  grid.innerHTML = categorias.map((c, i) => {
+    const isOpen = c.cat === expandida;
+    if (!isOpen) return renderTarjetaCategoria(c, i, false, '');
+    const panel = renderPanelProductosCategoria(c.cat);
+    const { filtrados } = getProductosExpandidos();
+    totalPaginas = Math.max(1, Math.ceil(filtrados.length / CFG.productosPorPagina));
+    contadorTxt = `${c.nombre} · ${filtrados.length} producto${filtrados.length !== 1 ? 's' : ''} · Página ${Estado.paginaActual}/${totalPaginas}`;
+    return renderTarjetaCategoria(c, i, true, panel);
+  }).join('');
+
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.cx-card').forEach((c) => c.classList.add('visible'));
+    grid.querySelectorAll('.cx-product-row').forEach((r) => r.classList.add('visible'));
+  });
+
+  if (contador) contador.textContent = contadorTxt;
+  if (paginacion) {
+    if (expandida) renderPaginacion(totalPaginas, Estado.paginaActual);
+    else paginacion.innerHTML = '';
+  }
+}
+
 /* ══════════════════════════════════════════════════════
    RENDER: BOTONES DE FILTRO
 ══════════════════════════════════════════════════════ */
 function renderFiltros(productos) {
   const contenedor = document.getElementById('cx-filtros');
   if (!contenedor) return;
-
-  const cats = ['todos', ...new Set(productos.map(p => p.categoria).filter(Boolean).sort())];
-
-  contenedor.innerHTML = cats.map(cat => {
-    const n      = cat === 'todos' ? productos.length : productos.filter(p => p.categoria === cat).length;
-    const activo = cat === Estado.categoriaActiva;
-    const color  = CAT_COLORES[cat] || '#ff6a00';
-
-    return `
-      <button
-        class="cx-filtro-btn ${activo ? 'activo' : ''}"
-        data-cat="${cat}"
-        onclick="window.cxFiltrarCat('${cat}')"
-        style="${activo ? `--fc:${color}` : ''}"
-      >
-        ${CATEGORIAS_LABEL[cat] || cat}
-        <span class="cx-filtro-count">${n}</span>
-      </button>
-    `;
-  }).join('');
+  contenedor.innerHTML = '';
 }
 
 function renderMarcas(productos) {
@@ -386,37 +563,49 @@ function renderMarcas(productos) {
    FILTRAR + BUSCAR
 ══════════════════════════════════════════════════════ */
 function aplicarFiltros() {
-  let base = [...Estado.todos];
-
-  if (Estado.categoriaActiva !== 'todos') {
-    base = base.filter(p => p.categoria === Estado.categoriaActiva);
-  }
-  if (Estado.busqueda.trim()) {
-    const q = Estado.busqueda.toLowerCase().trim();
-    base = base.filter(p =>
-      p.nombre.toLowerCase().includes(q) ||
-      p.descripcion.toLowerCase().includes(q) ||
-      (p.categoria || '').includes(q) ||
-      (p.marca || '').toLowerCase().includes(q)
-    );
-  }
-
+  const { base } = getProductosExpandidos();
   renderMarcas(base);
   const marcasDisponibles = new Set(base.map((p) => (p.marca || '').trim().toLowerCase()).filter(Boolean));
   if (Estado.marcaActiva !== 'todas' && !marcasDisponibles.has(Estado.marcaActiva.toLowerCase())) {
     Estado.marcaActiva = 'todas';
     renderMarcas(base);
   }
+  Estado.paginaActual = 1;
+  renderVistaCategorias();
+}
 
-  let r = [...base];
-  if (Estado.marcaActiva !== 'todas') {
-    const marcaQ = Estado.marcaActiva.toLowerCase();
-    r = r.filter((p) => (p.marca || '').trim().toLowerCase() === marcaQ);
+function abrirCategoria(cat) {
+  if (Estado.categoriaExpandida === cat) {
+    Estado.categoriaExpandida = null;
+    Estado.marcaActiva = 'todas';
+    Estado.busqueda = '';
+    Estado.paginaActual = 1;
+    renderMarcas([]);
+    renderVistaCategorias();
+    return;
   }
 
-  Estado.filtrados = r;
-  Estado.paginaActual = 1;
-  renderGrid(r, 1);
+  Estado.categoriaExpandida = cat;
+  Estado.marcaActiva = 'todas';
+  Estado.busqueda = '';
+  aplicarFiltros();
+  requestAnimationFrame(() => {
+    const card = document.querySelector(`[data-cat-block="${cat}"]`);
+    if (!(card instanceof HTMLElement)) return;
+    card.classList.remove('is-spotlight');
+    void card.offsetWidth;
+    card.classList.add('is-spotlight');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => card.classList.remove('is-spotlight'), 900);
+  });
+}
+
+function volverCategorias() {
+  Estado.categoriaExpandida = null;
+  Estado.marcaActiva = 'todas';
+  Estado.busqueda = '';
+  renderMarcas([]);
+  renderVistaCategorias();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -430,9 +619,10 @@ function abrirModal(id) {
   const body  = document.getElementById('cx-modal-body');
   if (!modal || !body) return;
 
-  const color  = CAT_COLORES[p.categoria] || '#ff6a00';
-  const label  = CATEGORIAS_LABEL[p.categoria] || p.categoria;
-  const icono  = CAT_ICONOS[p.categoria] || CAT_ICONOS.otros;
+  const cat = categoriaDeProducto(p);
+  const color  = colorCategoria(cat);
+  const label  = nombreCategoria(cat);
+  const icono  = CAT_ICONOS[cat] || CAT_ICONOS.otros;
 
   body.innerHTML = `
     <div class="cx-modal-img" style="--c:${color}">
@@ -472,35 +662,44 @@ function cerrarModal() {
 function setupBuyInteractions() {
   const grid = document.getElementById('cx-grid');
   if (grid) {
-    // Abrir modal SOLO si el click fue fuera de los controles (qty/agregar)
     grid.addEventListener('click', (e) => {
       const raw = e.target;
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
       if (!t) return;
 
-      const card = t.closest('.cx-card');
-      if (!card) return;
+      const catToggle = t.closest('[data-cat-toggle]');
+      if (catToggle) {
+        const cat = catToggle.getAttribute('data-cat-toggle');
+        if (cat) abrirCategoria(cat);
+        return;
+      }
 
-      // Si el click es en controles, no abrir modal
-      if (t.closest('[data-card-controls]')) return;
-
-      const id = card.getAttribute('data-card-id');
-      if (id) abrirModal(id);
+      const openBtn = t.closest('[data-open-modal]');
+      if (openBtn) {
+        const id = openBtn.getAttribute('data-open-modal');
+        if (id) abrirModal(id);
+        return;
+      }
     });
 
-    // Enter para abrir modal cuando el foco está en la tarjeta (no en inputs/botones)
     grid.addEventListener('keydown', (e) => {
       const raw = e.target;
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
       if (!t) return;
       if (e.key !== 'Enter') return;
 
-      const card = t.closest('.cx-card');
-      if (!card) return;
-      if (t.closest('[data-card-controls]')) return;
+      const catToggle = t.closest('[data-cat-toggle]');
+      if (catToggle) {
+        const cat = catToggle.getAttribute('data-cat-toggle');
+        if (cat) abrirCategoria(cat);
+        return;
+      }
 
-      const id = card.getAttribute('data-card-id');
-      if (id) abrirModal(id);
+      const openBtn = t.closest('[data-open-modal]');
+      if (openBtn) {
+        const id = openBtn.getAttribute('data-open-modal');
+        if (id) abrirModal(id);
+      }
     });
 
     grid.addEventListener('click', (e) => {
@@ -508,8 +707,8 @@ function setupBuyInteractions() {
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
       if (!t) return;
 
-      const card = t.closest('.cx-card');
-      if (!card) return;
+      const card = t.closest('.cx-card, .cx-product-row');
+      if (!card || t.closest('[data-cat-toggle]')) return;
 
       // qty controls
       const qtyBtn = t.closest('[data-qty-dec], [data-qty-inc]');
@@ -532,7 +731,11 @@ function setupBuyInteractions() {
         if (!p) return;
         const input = card.querySelector('[data-qty-input]');
         const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
-        const sourceEl = card.querySelector('.cx-card-img img') || card.querySelector('.cx-card-img');
+        const sourceEl =
+          card.querySelector('.cx-card-img img') ||
+          card.querySelector('.cx-card-img') ||
+          card.querySelector('.cx-product-row-media img') ||
+          card.querySelector('.cx-product-row-media');
         addItem(p, qty, sourceEl);
         addBtn.classList.remove('is-added');
         void addBtn.offsetWidth;
@@ -590,7 +793,8 @@ async function init() {
     Estado.todos = productos;
     Estado.filtrados = [...productos];
     renderFiltros(productos);
-    aplicarFiltros();
+    renderMarcas([]);
+    renderVistaCategorias();
     Estado.cargando = false;
 
   } catch (error) {
@@ -611,17 +815,11 @@ window.cxAbrirModal  = abrirModal;
 window.cxCerrarModal = cerrarModal;
 
 window.cxFiltrarCat = (cat) => {
-  Estado.categoriaActiva = cat;
-  document.querySelectorAll('.cx-filtro-btn').forEach(b => {
-    const activo = b.dataset.cat === cat;
-    b.classList.toggle('activo', activo);
-    const c = CAT_COLORES[cat] || '#ff6a00';
-    activo ? b.style.setProperty('--fc', c) : b.style.removeProperty('--fc');
-  });
-  aplicarFiltros();
+  abrirCategoria(cat);
 };
 
 window.cxFiltrarMarca = (marca) => {
+  if (!Estado.categoriaExpandida) return;
   Estado.marcaActiva = marca;
   document.querySelectorAll('#cx-marcas .cx-filtro-btn').forEach((b) => {
     b.classList.toggle('activo', b.dataset.marca === marca);
@@ -629,8 +827,12 @@ window.cxFiltrarMarca = (marca) => {
   aplicarFiltros();
 };
 
+window.cxVolverCategorias = volverCategorias;
+
 window.cxIrPagina = (pagina) => {
-  renderGrid(Estado.filtrados, pagina);
+  if (!Estado.categoriaExpandida) return;
+  Estado.paginaActual = pagina;
+  renderVistaCategorias();
   const sec = document.getElementById('productos');
   sec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -646,7 +848,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Búsqueda con debounce
   const inp = document.getElementById('cx-buscar');
   if (inp) {
-    const doBuscar = debounce(v => { Estado.busqueda = v; aplicarFiltros(); }, CFG.debounceMs);
+    const doBuscar = debounce(v => {
+      if (!Estado.categoriaExpandida) return;
+      Estado.busqueda = v;
+      aplicarFiltros();
+    }, CFG.debounceMs);
     inp.addEventListener('input', e => doBuscar(e.target.value));
   }
 
