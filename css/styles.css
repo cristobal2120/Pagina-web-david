@@ -974,10 +974,14 @@ ul     { list-style: none; }
 
 @media (min-width: 1024px) {
   .cx-cat-products-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    align-items: start;
+    /* En escritorio: mostrar 1 producto visible al abrir una categoría */
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+    max-height: 210px;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    padding-right: .35rem;
   }
 
   /* En desktop/tablet: mantener el "orden" tipo móvil dentro del panel expandido */
@@ -989,6 +993,7 @@ ul     { list-style: none; }
       "actions actions";
     align-items: start;
     row-gap: .55rem;
+    scroll-snap-align: start;
   }
   .cx-cat-products-list .cx-product-row-media {
     width: 72px;
@@ -2878,7 +2883,15 @@ footer {
 
 @media (min-width: 1280px) {
   #cx-grid {
-    grid-template-columns: repeat(4, 1fr);
+    /* En escritorio: 2 tarjetas por fila */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Asegura 2 tarjetas por fila también en 1024–1279px */
+  #cx-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2979,3 +2992,10 @@ footer {
     flex: 0 0 108px;
     width: 108px;
   }
+  .cx-product-row .cx-add-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    font-size: .7rem;
+  }
+}
