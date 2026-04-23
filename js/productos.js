@@ -677,6 +677,9 @@ function abrirModal(id) {
   const color  = colorCategoria(cat);
   const label  = nombreCategoria(cat);
   const icono  = CAT_ICONOS[cat] || CAT_ICONOS.otros;
+  const precioTxt = formatCOP(p.precio);
+  const msgWA = `Hola, quiero pedir: ${p.nombre} (${precioTxt}). ¿Está disponible?`;
+  const waHref = `https://wa.me/${CFG.waNumero}?text=${encodeURIComponent(msgWA)}`;
 
   body.innerHTML = `
     <div class="cx-modal-img" style="--c:${color}">
@@ -686,19 +689,28 @@ function abrirModal(id) {
       }
     </div>
     <div class="cx-modal-info">
-      <span class="cx-cat-pill" style="color:${color};background:${color}1a;border-color:${color}30">${label}</span>
+      <div class="cx-modal-meta">
+        <span class="cx-cat-pill" style="color:${color};background:${color}1a;border-color:${color}30">${label}</span>
+        <span class="cx-modal-brand">Marca: ${p.marca || 'Sin marca'}</span>
+      </div>
       <h2 class="cx-modal-title">${p.nombre}</h2>
       <p class="cx-modal-desc">${p.descripcion}</p>
-      <div class="cx-modal-precio">${formatCOP(p.precio)}</div>
-      <div class="cx-modal-buy">
+      <div class="cx-modal-precio">${precioTxt}</div>
+
+      <div class="cx-modal-actions">
         <div class="cx-qty" aria-label="Cantidad a agregar">
           <button class="cx-qty-btn" type="button" data-modal-qty-dec aria-label="Disminuir cantidad">−</button>
           <input class="cx-qty-input" type="number" min="1" max="999" value="1" inputmode="numeric" data-modal-qty-input aria-label="Cantidad">
           <button class="cx-qty-btn" type="button" data-modal-qty-inc aria-label="Aumentar cantidad">+</button>
         </div>
-        <button class="cx-btn cx-btn-blue" type="button" data-modal-add-cart data-id="${p.id}">
+
+        <button class="cx-btn cx-btn-blue cx-modal-primary" type="button" data-modal-add-cart data-id="${p.id}">
           Agregar al carrito
         </button>
+
+        <a class="cx-modal-wa" href="${waHref}" target="_blank" rel="noopener noreferrer" aria-label="Pedir por WhatsApp: ${p.nombre}">
+          Pedir por WhatsApp
+        </a>
       </div>
     </div>
   `;
