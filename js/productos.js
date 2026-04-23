@@ -53,9 +53,9 @@ const CATEGORIAS_LABEL = {
 };
 
 const CAT_COLORES = {
-  herramientas: '#ff6a00',
+  herramientas: '#2b7ec1',
   electricidad: '#007bff',
-  fijacion:     '#ff6a00',
+  fijacion:     '#1e5a96',
   plomeria:     '#17a2b8',
   pintura:      '#6f42c1',
   construccion: '#28a745',
@@ -153,6 +153,40 @@ function nombreCategoria(cat) {
 
 function colorCategoria(cat) {
   return CAT_COLORES[cat] || '#ff6a00';
+}
+
+function triggerSectionNavFx() {
+  const sec = document.getElementById('productos');
+  if (!sec) return;
+  sec.classList.remove('is-nav-anim');
+  void sec.offsetWidth;
+  sec.classList.add('is-nav-anim');
+  setTimeout(() => sec.classList.remove('is-nav-anim'), 620);
+}
+
+function triggerAddFx(sourceEl, color = '#3d9cff') {
+  if (!(sourceEl instanceof HTMLElement)) return;
+  const rect = sourceEl.getBoundingClientRect();
+  const root = document.body;
+  if (!root) return;
+
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('span');
+    const dx = (Math.random() * 120) - 60;
+    const dy = -40 - (Math.random() * 80);
+    const size = 6 + Math.random() * 7;
+    p.className = 'cx-hw-particle';
+    p.style.left = `${rect.left + (rect.width / 2)}px`;
+    p.style.top = `${rect.top + (rect.height / 2)}px`;
+    p.style.width = `${size}px`;
+    p.style.height = `${size}px`;
+    p.style.setProperty('--dx', `${dx}px`);
+    p.style.setProperty('--dy', `${dy}px`);
+    p.style.setProperty('--pc', color);
+    p.style.borderRadius = i % 2 === 0 ? '50%' : '3px';
+    root.appendChild(p);
+    setTimeout(() => p.remove(), 700);
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -301,7 +335,7 @@ function renderFilaProducto(p, idx) {
   const icono = CAT_ICONOS[cat] || CAT_ICONOS.otros;
   const delay = Math.min(idx * 45, 380);
   return `
-    <article class="cx-product-row" style="animation-delay:${delay}ms;--accent:${color}" data-product-id="${p.id}" role="listitem">
+    <article class="cx-product-row" style="animation-delay:${delay}ms;--accent:${color}" data-product-id="${p.id}" role="listitem" tabindex="0">
       <button class="cx-product-row-media" type="button" data-open-modal="${p.id}" aria-label="Ver detalle de ${p.nombre}">
         ${p.imagen
           ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
@@ -314,8 +348,8 @@ function renderFilaProducto(p, idx) {
         </button>
         <div class="cx-product-row-brand">${p.marca || 'Sin marca'}</div>
         <p class="cx-product-row-desc">${p.descripcion || 'Sin descripción disponible.'}</p>
+        <div class="cx-product-row-price">${formatCOP(p.precio)}</div>
       </div>
-      <div class="cx-product-row-price">${formatCOP(p.precio)}</div>
       <div class="cx-product-row-actions" data-card-controls="1">
         <div class="cx-qty" aria-label="Cantidad a agregar">
           <button class="cx-qty-btn" type="button" data-qty-dec aria-label="Disminuir cantidad">−</button>
@@ -479,6 +513,7 @@ function setVistaProductosUI(expandida) {
 
   productosSec?.classList.toggle('cx-view-productos', expandida);
   productosSec?.classList.toggle('cx-view-categorias', !expandida);
+  productosSec?.classList.toggle('cx-cat-overlay-active', expandida);
   buscarWrap?.classList.toggle('is-hidden', !expandida);
   marcas?.classList.toggle('is-hidden', !expandida);
 
@@ -589,13 +624,26 @@ function abrirCategoria(cat) {
   Estado.marcaActiva = 'todas';
   Estado.busqueda = '';
   aplicarFiltros();
+  triggerSectionNavFx();
   requestAnimationFrame(() => {
     const card = document.querySelector(`[data-cat-block="${cat}"]`);
     if (!(card instanceof HTMLElement)) return;
     card.classList.remove('is-spotlight');
     void card.offsetWidth;
     card.classList.add('is-spotlight');
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    if (window.innerWidth < 600) {
+      const header = document.querySelector('.cx-header');
+      const headerHeight = header instanceof HTMLElement ? header.offsetHeight : 76;
+      const cardTop = card.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: Math.max(0, cardTop - headerHeight - 12),
+        behavior: 'smooth',
+      });
+    } else {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     setTimeout(() => card.classList.remove('is-spotlight'), 900);
   });
 }
@@ -667,6 +715,12 @@ function setupBuyInteractions() {
       const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
       if (!t) return;
 
+      const row = t.closest('.cx-product-row');
+      if (row && !t.closest('[data-card-controls], [data-open-modal]')) {
+        grid.querySelectorAll('.cx-product-row.is-selected').forEach((x) => x.classList.remove('is-selected'));
+        row.classList.add('is-selected');
+      }
+
       const catToggle = t.closest('[data-cat-toggle]');
       if (catToggle) {
         const cat = catToggle.getAttribute('data-cat-toggle');
@@ -680,6 +734,15 @@ function setupBuyInteractions() {
         if (id) abrirModal(id);
         return;
       }
+    });
+
+    grid.addEventListener('focusin', (e) => {
+      const raw = e.target;
+      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      const row = t?.closest('.cx-product-row');
+      if (!row) return;
+      grid.querySelectorAll('.cx-product-row.is-selected').forEach((x) => x.classList.remove('is-selected'));
+      row.classList.add('is-selected');
     });
 
     grid.addEventListener('keydown', (e) => {
@@ -737,6 +800,11 @@ function setupBuyInteractions() {
           card.querySelector('.cx-product-row-media img') ||
           card.querySelector('.cx-product-row-media');
         addItem(p, qty, sourceEl);
+        const cat = categoriaDeProducto(p);
+        triggerAddFx(sourceEl, colorCategoria(cat));
+        card.classList.remove('is-forge');
+        void card.offsetWidth;
+        card.classList.add('is-forge');
         addBtn.classList.remove('is-added');
         void addBtn.offsetWidth;
         addBtn.classList.add('is-added');
@@ -775,6 +843,8 @@ function setupBuyInteractions() {
       const qty = input instanceof HTMLInputElement ? clampInt(input.value, 1, 999) : 1;
       const sourceEl = box.querySelector('.cx-modal-img img') || box.querySelector('.cx-modal-img');
       addItem(p, qty, sourceEl);
+      const cat = categoriaDeProducto(p);
+      triggerAddFx(sourceEl, colorCategoria(cat));
       return;
     }
   });
@@ -833,6 +903,7 @@ window.cxIrPagina = (pagina) => {
   if (!Estado.categoriaExpandida) return;
   Estado.paginaActual = pagina;
   renderVistaCategorias();
+  triggerSectionNavFx();
   const sec = document.getElementById('productos');
   sec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
