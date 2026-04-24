@@ -388,6 +388,18 @@ function getProductosExpandidos() {
   return { base, filtrados };
 }
 
+function getProductosBusquedaGlobal() {
+  const q = Estado.busqueda.toLowerCase().trim();
+  if (!q) return [...Estado.todos];
+
+  return Estado.todos.filter((p) =>
+    (p.nombre || '').toLowerCase().includes(q) ||
+    (p.descripcion || '').toLowerCase().includes(q) ||
+    (p.marca || '').toLowerCase().includes(q) ||
+    categoriaDeProducto(p).toLowerCase().includes(q)
+  );
+}
+
 function renderPanelProductosCategoria(cat) {
   const { base, filtrados } = getProductosExpandidos();
   const color = colorCategoria(cat);
@@ -492,6 +504,7 @@ function renderPaginacion(totalPaginas, paginaActual, targetId = 'cx-paginacion'
 function renderGrid(productos, pagina = 1) {
   const grid     = document.getElementById('cx-grid');
   const contador = document.getElementById('cx-contador');
+  const paginacion = document.getElementById('cx-paginacion');
   if (!grid) return;
 
   if (!productos?.length) {
@@ -500,6 +513,7 @@ function renderGrid(productos, pagina = 1) {
       Estado.busqueda ? 'Prueba otro término de búsqueda' : 'Vuelve pronto, estamos actualizando el catálogo'
     );
     if (contador) contador.textContent = '0 productos';
+    if (paginacion) paginacion.innerHTML = '';
     return;
   }
 
@@ -520,19 +534,19 @@ function renderGrid(productos, pagina = 1) {
 
 function setVistaProductosUI(expandida) {
   const productosSec = document.getElementById('productos');
-  const buscarWrap = document.querySelector('.cx-search-wrap');
   const marcas = document.getElementById('cx-marcas');
   const filtros = document.getElementById('cx-filtros');
+  const filtrosFila = document.querySelector('.cx-filtros-fila');
   const buscador = document.getElementById('cx-buscar');
 
   productosSec?.classList.toggle('cx-view-productos', expandida);
   productosSec?.classList.toggle('cx-view-categorias', !expandida);
   productosSec?.classList.toggle('cx-cat-overlay-active', expandida);
-  buscarWrap?.classList.toggle('is-hidden', !expandida);
   marcas?.classList.toggle('is-hidden', !expandida);
+  filtrosFila?.classList.toggle('is-hidden', !expandida);
 
   if (filtros) filtros.innerHTML = '';
-  if (buscador && !expandida) buscador.value = '';
+  if (buscador && buscador.value !== Estado.busqueda) buscador.value = Estado.busqueda;
 }
 
 function renderVistaCategorias() {
@@ -540,6 +554,14 @@ function renderVistaCategorias() {
   const contador = document.getElementById('cx-contador');
   const paginacion = document.getElementById('cx-paginacion');
   if (!grid) return;
+
+  if (!Estado.categoriaExpandida && Estado.busqueda.trim()) {
+    setVistaProductosUI(true);
+    renderMarcas([]);
+    Estado.filtrados = getProductosBusquedaGlobal();
+    renderGrid(Estado.filtrados, Estado.paginaActual);
+    return;
+  }
 
   const categorias = getCategoriasResumen(Estado.todos);
   if (!categorias.length) {
@@ -549,7 +571,6 @@ function renderVistaCategorias() {
 
   const expandida = Estado.categoriaExpandida;
   setVistaProductosUI(Boolean(expandida));
-  let contadorTxt = `${categorias.length} categor${categorias.length !== 1 ? 'ías' : 'ía'}`;
   let totalPaginas = 0;
 
   grid.innerHTML = categorias.map((c, i) => {
@@ -558,7 +579,6 @@ function renderVistaCategorias() {
     const panel = renderPanelProductosCategoria(c.cat);
     const { filtrados } = getProductosExpandidos();
     totalPaginas = Math.max(1, Math.ceil(filtrados.length / CFG.productosPorPagina));
-    contadorTxt = `${c.nombre} · ${filtrados.length} producto${filtrados.length !== 1 ? 's' : ''} · Página ${Estado.paginaActual}/${totalPaginas}`;
     return renderTarjetaCategoria(c, i, true, panel);
   }).join('');
 
@@ -567,7 +587,7 @@ function renderVistaCategorias() {
     grid.querySelectorAll('.cx-product-row').forEach((r) => r.classList.add('visible'));
   });
 
-  if (contador) contador.textContent = contadorTxt;
+  if (contador) contador.textContent = '';
   if (paginacion) {
     if (expandida) {
       paginacion.innerHTML = '';
@@ -650,17 +670,14 @@ function abrirCategoria(cat) {
     void card.offsetWidth;
     card.classList.add('is-spotlight');
 
-    if (window.innerWidth < 600) {
-      const header = document.querySelector('.cx-header');
-      const headerHeight = header instanceof HTMLElement ? header.offsetHeight : 76;
-      const cardTop = card.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({
-        top: Math.max(0, cardTop - headerHeight - 12),
-        behavior: 'smooth',
-      });
-    } else {
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    const header = document.querySelector('.cx-header');
+    const headerHeight = header instanceof HTMLElement ? header.offsetHeight : 76;
+    const extraOffset = window.innerWidth < 768 ? 12 : 28;
+    const cardTop = card.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({
+      top: Math.max(0, cardTop - headerHeight - extraOffset),
+      behavior: 'smooth',
+    });
 
     setTimeout(() => card.classList.remove('is-spotlight'), 900);
   });
@@ -943,9 +960,14 @@ window.cxFiltrarMarca = (marca) => {
 window.cxVolverCategorias = volverCategorias;
 
 window.cxIrPagina = (pagina) => {
-  if (!Estado.categoriaExpandida) return;
   Estado.paginaActual = pagina;
-  renderVistaCategorias();
+  if (Estado.categoriaExpandida) {
+    renderVistaCategorias();
+  } else if (Estado.busqueda.trim()) {
+    renderGrid(getProductosBusquedaGlobal(), Estado.paginaActual);
+  } else {
+    return;
+  }
   triggerSectionNavFx();
   const sec = document.getElementById('productos');
   sec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -963,9 +985,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const inp = document.getElementById('cx-buscar');
   if (inp) {
     const doBuscar = debounce(v => {
-      if (!Estado.categoriaExpandida) return;
       Estado.busqueda = v;
-      aplicarFiltros();
+      Estado.paginaActual = 1;
+      if (Estado.categoriaExpandida) {
+        aplicarFiltros();
+        return;
+      }
+      renderVistaCategorias();
     }, CFG.debounceMs);
     inp.addEventListener('input', e => doBuscar(e.target.value));
   }
