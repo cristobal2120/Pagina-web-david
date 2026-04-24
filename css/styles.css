@@ -1578,6 +1578,44 @@ ul     { list-style: none; }
   flex: 1 1 auto;
 }
 
+[data-theme="dark"] #productos .cx-section-sub,
+[data-theme="dark"] #productos #cx-contador,
+[data-theme="dark"] #productos .cx-filtro-btn,
+[data-theme="dark"] #productos .cx-brand-pill,
+[data-theme="dark"] #productos .cx-cat-card-count,
+[data-theme="dark"] #productos .cx-product-row-brand,
+[data-theme="dark"] #productos .cx-card-desc,
+[data-theme="dark"] #productos .cx-product-row-desc {
+  color: #d6deea;
+}
+
+[data-theme="dark"] #productos .cx-filtro-btn {
+  background: #263241;
+  border-color: rgba(96, 170, 255, 0.32);
+}
+
+[data-theme="dark"] #productos .cx-filtro-btn:hover {
+  color: #f4f8ff;
+  background: #304256;
+  border-color: rgba(120, 188, 255, 0.55);
+}
+
+[data-theme="dark"] #productos .cx-filtro-btn.activo {
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(30, 90, 150, 0.32);
+}
+
+[data-theme="dark"] #productos .cx-card-name,
+[data-theme="dark"] #productos .cx-cat-card-name,
+[data-theme="dark"] #productos .cx-product-row-name {
+  color: #f7fbff;
+}
+
+[data-theme="dark"] #productos .cx-precio,
+[data-theme="dark"] #productos .cx-product-row-price {
+  color: #7fc1ff;
+}
+
 .cx-card-buy {
   display: flex;
   gap: .55rem;
