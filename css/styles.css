@@ -2353,11 +2353,16 @@ footer {
     grid-template-columns: 92px minmax(0, 1fr);
     grid-template-areas:
       "media main"
-      "media actions actions";
+      "media actions";
     row-gap: .55rem;
+    align-items: start;
+    overflow: visible;
   }
   .cx-product-row-media { grid-area: media; }
-  .cx-product-row-main { grid-area: main; }
+  .cx-product-row-main {
+    grid-area: main;
+    overflow: visible;
+  }
   .cx-product-row-actions {
     grid-area: actions;
     justify-content: flex-start;
@@ -2396,6 +2401,7 @@ footer {
     align-items: start;
     gap: .55rem .65rem;
     padding: .62rem .65rem;
+    overflow: visible;
   }
   .cx-product-row-media {
     grid-area: media;
@@ -2405,6 +2411,7 @@ footer {
   }
   .cx-product-row-main {
     grid-area: main;
+    overflow: visible;
   }
   .cx-product-row-price {
     font-size: 1.15rem;
@@ -3340,6 +3347,7 @@ footer {
       "actions actions";
     align-items: start;
     row-gap: .5rem;
+    overflow: visible;
   }
   .cx-product-row-media {
     width: 72px;
@@ -3369,6 +3377,7 @@ footer {
   .cx-product-row {
     grid-template-columns: 60px minmax(0, 1fr);
     padding: .62rem;
+    overflow: visible;
   }
   .cx-product-row-media {
     width: 60px;
