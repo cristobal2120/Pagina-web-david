@@ -363,7 +363,7 @@ ul     { list-style: none; }
   z-index: 2;
   width: 100%;
   padding-top: 1.6rem;
-  padding-bottom: 6rem;
+  padding-bottom: 2.2rem;
 }
 
 .cx-hero-content {
@@ -428,35 +428,44 @@ ul     { list-style: none; }
   flex-wrap: wrap;
   gap: .9rem;
   align-items: center;
+  margin-bottom: 1.35rem;
+}
+.cx-hero-cta .cx-btn {
+  flex: 0 0 auto;
 }
 
 /* HERO STATS */
 .cx-hero-stats {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  left: auto;
+  bottom: auto;
+  transform: none;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1rem;
   background: var(--hero-stats-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: .9rem 2rem;
-  white-space: nowrap;
+  padding: 1rem 1.15rem;
+  width: min(100%, 980px);
+  margin: 0 auto;
+  white-space: normal;
 }
 .cx-stat {
   display: flex;
   align-items: center;
   gap: .95rem;
-  min-width: 180px;
+  min-width: 0;
+  padding: .2rem;
 }
 .cx-stat-body {
   display: flex;
   flex-direction: column;
   white-space: normal;
+  min-width: 0;
 }
 .cx-stat-icon-wrap {
   position: relative;
@@ -520,15 +529,19 @@ ul     { list-style: none; }
   font-size: 1.8rem;
   color: var(--blue-main);
   line-height: 1;
+  white-space: nowrap;
 }
 .cx-stat-lbl {
   font-family: var(--font-cond);
   font-size: .68rem;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--gray);
   margin-top: .15rem;
+  line-height: 1.35;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 @keyframes cxGearSpinReverse {
   from { transform: rotate(0deg); }
@@ -2834,16 +2847,14 @@ footer {
   .cx-hero-title { font-size: clamp(3rem, 6vw, 4.2rem); }
   .cx-hero-sub   { max-width: 95%; }
   .cx-hero-stats {
-    position: static;
-    transform: none;
     margin-top: 1.8rem;
-    justify-content: space-around;
     width: 100%;
-    gap: 1.2rem;
+    gap: .9rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .cx-stat {
     min-width: 0;
-    flex: 1 1 0;
+    flex: initial;
   }
 
   #cx-grid {
@@ -2875,19 +2886,14 @@ footer {
   .cx-theme-btn { width: 42px; height: 42px; }
 
   .cx-hero-stats {
-    position: static;
-    transform: none;
-    left: auto;
-    bottom: auto;
     margin-top: 2rem;
-    flex-wrap: wrap;
-    gap: 1.25rem 2rem;
-    justify-content: center;
+    grid-template-columns: 1fr;
+    gap: .85rem;
     padding: .75rem 1.25rem;
     width: 100%;
   }
   .cx-stat {
-    min-width: 220px;
+    min-width: 0;
   }
 
   #inicio {
@@ -3002,10 +3008,15 @@ footer {
   .cx-hero-sub        { font-size: .92rem; max-width: 100%; }
   .cx-hero-cta        { flex-direction: column; align-items: stretch; }
   .cx-hero-cta .cx-btn { justify-content: center; }
-  .cx-hero-stats      { gap: 1rem 1.5rem; }
+  .cx-hero-stats {
+    gap: .75rem;
+    padding: .8rem .85rem;
+  }
   .cx-hero-stats .cx-stat {
     min-width: 100%;
     text-align: left;
+    gap: .8rem;
+    padding: .1rem 0;
   }
   .cx-stat-icon-wrap {
     width: 52px;
@@ -3016,7 +3027,8 @@ footer {
     font-size: 1.65rem;
   }
   .cx-stat-lbl {
-    font-size: .64rem;
+    font-size: .62rem;
+    letter-spacing: .07em;
   }
 
   #cx-grid { grid-template-columns: 1fr; gap: .75rem; }
