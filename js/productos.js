@@ -319,7 +319,6 @@ function renderTarjetaCategoria(c, idx, abierta = false, panelHTML = '') {
         <div class="cx-cat-card-icon">${c.icono}</div>
         <div class="cx-cat-card-info">
           <h3 class="cx-cat-card-name">${c.nombre}</h3>
-          <p class="cx-cat-card-count">${c.total} producto${c.total !== 1 ? 's' : ''}</p>
         </div>
         <span class="cx-cat-card-dot" aria-hidden="true"></span>
       </button>
