@@ -447,6 +447,74 @@ ul     { list-style: none; }
   padding: .9rem 2rem;
   white-space: nowrap;
 }
+.cx-stat {
+  display: flex;
+  align-items: center;
+  gap: .95rem;
+  min-width: 180px;
+}
+.cx-stat-body {
+  display: flex;
+  flex-direction: column;
+  white-space: normal;
+}
+.cx-stat-icon-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 52%),
+    linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  overflow: hidden;
+}
+.cx-stat-icon-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+  pointer-events: none;
+}
+.cx-stat-gear {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  color: var(--orange);
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.22));
+}
+.cx-stat-icon-main {
+  inset: 0;
+}
+.cx-stat-gear-mini {
+  right: 5px;
+  bottom: 5px;
+  width: 20px;
+  height: 20px;
+  color: var(--blue-accent);
+  animation: cxGearSpinReverse 5.5s linear infinite;
+  transform-origin: center;
+}
+.cx-stat-products .cx-stat-icon-wrap {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,106,0,.28), transparent 54%),
+    linear-gradient(145deg, rgba(255,106,0,.15), rgba(30,90,150,.12));
+}
+.cx-stat-years .cx-stat-icon-wrap {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(61,156,255,.24), transparent 54%),
+    linear-gradient(145deg, rgba(30,90,150,.2), rgba(61,156,255,.08));
+}
+.cx-stat-clients .cx-stat-icon-wrap {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(40,167,69,.2), transparent 54%),
+    linear-gradient(145deg, rgba(40,167,69,.16), rgba(30,90,150,.12));
+}
 .cx-stat-num {
   font-family: var(--font-head);
   font-size: 1.8rem;
@@ -461,6 +529,15 @@ ul     { list-style: none; }
   text-transform: uppercase;
   color: var(--gray);
   margin-top: .15rem;
+}
+@keyframes cxGearSpinReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-stat-gear-mini {
+    animation: none;
+  }
 }
 
 /* ─────────────────────────────────────────────────
@@ -2658,6 +2735,10 @@ footer {
     width: 100%;
     gap: 1.2rem;
   }
+  .cx-stat {
+    min-width: 0;
+    flex: 1 1 0;
+  }
 
   #cx-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2698,6 +2779,9 @@ footer {
     justify-content: center;
     padding: .75rem 1.25rem;
     width: 100%;
+  }
+  .cx-stat {
+    min-width: 220px;
   }
 
   #inicio {
@@ -2797,7 +2881,21 @@ footer {
   .cx-hero-cta        { flex-direction: column; align-items: stretch; }
   .cx-hero-cta .cx-btn { justify-content: center; }
   .cx-hero-stats      { gap: 1rem 1.5rem; }
-  .cx-hero-stats .cx-stat { min-width: 84px; text-align: center; }
+  .cx-hero-stats .cx-stat {
+    min-width: 100%;
+    text-align: left;
+  }
+  .cx-stat-icon-wrap {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+  }
+  .cx-stat-num {
+    font-size: 1.65rem;
+  }
+  .cx-stat-lbl {
+    font-size: .64rem;
+  }
 
   #cx-grid { grid-template-columns: 1fr; gap: .75rem; }
   #productos.cx-view-categorias #cx-grid {
