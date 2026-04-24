@@ -253,7 +253,8 @@ function renderTarjeta(p, idx) {
       <!-- Imagen / placeholder -->
       <div class="cx-card-img" style="--c:${color}">
         ${p.imagen
-          ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
+          ? `<img src="${p.imagen}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+             <div class="cx-placeholder" style="display:none;color:${color}">${icono}</div>`
           : `<div class="cx-placeholder" style="color:${color}">${icono}</div>`
         }
         ${p.destacado ? '<span class="cx-badge-star">★ Destacado</span>' : ''}
@@ -340,7 +341,8 @@ function renderFilaProducto(p, idx) {
     <article class="cx-product-row" style="animation-delay:${delay}ms;--accent:${color}" data-product-id="${p.id}" role="listitem" tabindex="0">
       <button class="cx-product-row-media" type="button" data-open-modal="${p.id}" aria-label="Ver detalle de ${p.nombre}">
         ${p.imagen
-          ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
+          ? `<img src="${p.imagen}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+             <div class="cx-placeholder" style="display:none;color:${color}">${icono}</div>`
           : `<div class="cx-placeholder" style="color:${color}">${icono}</div>`
         }
       </button>
@@ -716,7 +718,8 @@ function abrirModal(id) {
     </button>
     <div class="cx-modal-img" style="--c:${color}">
       ${p.imagen
-        ? `<img src="${p.imagen}" alt="${p.nombre}">`
+        ? `<img src="${p.imagen}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+           <div class="cx-placeholder cx-placeholder-lg" style="display:none;color:${color}">${icono}</div>`
         : `<div class="cx-placeholder cx-placeholder-lg" style="color:${color}">${icono}</div>`
       }
     </div>
