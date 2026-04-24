@@ -16,7 +16,7 @@ const CFG = {
    UTILIDADES
 ══════════════════════════════════════════════════════ */
 function clampInt(n, min, max) {
-  const x = Number.parseInt(String(n ?? ""), 10);
+  const x = Number.parseInt(String(n == null ? "" : n), 10);
   if (!Number.isFinite(x)) return min;
   return Math.max(min, Math.min(max, x));
 }
@@ -48,7 +48,7 @@ function readCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
-    const items = Array.isArray(parsed?.items) ? parsed.items : [];
+    const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
     return items
       .filter((it) => it && it.id && it.nombre)
       .map((it) => ({
@@ -75,8 +75,8 @@ function readMeta() {
     const raw = localStorage.getItem(META_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
     return {
-      cliente: String(parsed?.cliente ?? "").trim(),
-      asesor: String(parsed?.asesor ?? "").trim(),
+      cliente: String(parsed && parsed.cliente != null ? parsed.cliente : "").trim(),
+      asesor: String(parsed && parsed.asesor != null ? parsed.asesor : "").trim(),
     };
   } catch {
     return { cliente: "", asesor: "" };
@@ -88,8 +88,8 @@ function writeMeta(meta) {
     META_KEY,
     JSON.stringify({
       v: 1,
-      cliente: String(meta?.cliente ?? "").trim(),
-      asesor: String(meta?.asesor ?? "").trim(),
+      cliente: String(meta && meta.cliente != null ? meta.cliente : "").trim(),
+      asesor: String(meta && meta.asesor != null ? meta.asesor : "").trim(),
     })
   );
 }
@@ -98,8 +98,10 @@ function writeMeta(meta) {
    FORM: LEER Y SINCRONIZAR DATOS
 ══════════════════════════════════════════════════════ */
 function getMetaFromUI() {
-  const cliente = (document.getElementById("cx-cart-client")?.value || "").trim();
-  const asesor = (document.getElementById("cx-cart-advisor")?.value || "").trim();
+  const clienteInput = document.getElementById("cx-cart-client");
+  const asesorInput = document.getElementById("cx-cart-advisor");
+  const cliente = ((clienteInput && clienteInput.value) || "").trim();
+  const asesor = ((asesorInput && asesorInput.value) || "").trim();
   return { cliente, asesor };
 }
 
@@ -137,15 +139,21 @@ function ensureCartUI() {
 
   // Sincronizar datos del formulario
   syncMetaToUI();
-  drawer.querySelector("#cx-cart-form")?.addEventListener("input", () => {
-    writeMeta(getMetaFromUI());
-  });
+  const cartForm = drawer.querySelector("#cx-cart-form");
+  if (cartForm) {
+    cartForm.addEventListener("input", () => {
+      writeMeta(getMetaFromUI());
+    });
+  }
 
   // Vaciar carrito
-  drawer.querySelector("#cx-cart-clear")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    clearCart();
-  });
+  const clearBtn = drawer.querySelector("#cx-cart-clear");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      clearCart();
+    });
+  }
 
   // Abrir carrito
   btn.addEventListener("click", (e) => {
@@ -155,7 +163,8 @@ function ensureCartUI() {
 
   // Cerrar carrito
   overlay.addEventListener("click", () => closeCart());
-  drawer.querySelector('[data-cart-close="1"]')?.addEventListener("click", () => closeCart());
+  const closeBtn = drawer.querySelector('[data-cart-close="1"]');
+  if (closeBtn) closeBtn.addEventListener("click", () => closeCart());
 
   // Cerrar con Escape
   document.addEventListener("keydown", (e) => {
@@ -165,11 +174,11 @@ function ensureCartUI() {
   // Eventos de cantidad (±) y eliminación
   drawer.addEventListener("click", (e) => {
     const raw = e.target;
-    const target = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+    const target = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
     if (!target) return;
 
     const row = target.closest("[data-cart-row]");
-    const id = row?.getAttribute("data-id");
+    const id = row ? row.getAttribute("data-id") : null;
     if (!id) return;
 
     const decBtn = target.closest("[data-cart-dec]");
@@ -199,16 +208,19 @@ function ensureCartUI() {
     if (!(target instanceof HTMLInputElement)) return;
     if (!target.matches("[data-cart-qty]")) return;
     const row = target.closest("[data-cart-row]");
-    const id = row?.getAttribute("data-id");
+    const id = row ? row.getAttribute("data-id") : null;
     if (!id) return;
     setQty(id, clampInt(target.value, 1, 999));
   });
 
   // Click en botón "Pagar"
-  drawer.querySelector("#cx-cart-pay")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    payWhatsApp();
-  });
+  const payBtn = drawer.querySelector("#cx-cart-pay");
+  if (payBtn) {
+    payBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      payWhatsApp();
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -222,7 +234,8 @@ function openCart() {
   drawer.classList.add("open");
   document.body.style.overflow = "hidden";
   syncMetaToUI();
-  drawer.querySelector("input")?.focus?.();
+  const firstInput = drawer.querySelector("input");
+  if (firstInput && typeof firstInput.focus === "function") firstInput.focus();
 }
 
 function closeCart() {
@@ -289,8 +302,8 @@ function animateProductToCart(sourceEl, producto) {
   fly.style.setProperty("--ty", `${endY - startY}px`);
 
   const img = document.createElement("img");
-  img.alt = producto?.nombre || "Producto";
-  img.src = producto?.imagen || "css/icono.png";
+  img.alt = (producto && producto.nombre) || "Producto";
+  img.src = (producto && producto.imagen) || "css/icono.png";
   fly.appendChild(img);
 
   document.body.appendChild(fly);
@@ -405,14 +418,14 @@ function getQty(id) {
 export function addItem(producto, qty, sourceEl = null) {
   const items = readCart();
   const q = clampInt(qty, 1, 999);
-  const id = String(producto?.id ?? "");
+  const id = String(producto && producto.id != null ? producto.id : "");
   if (!id) return;
 
   const idx = items.findIndex((x) => x.id === id);
   if (idx === -1) {
     items.push({
       id,
-      nombre: String(producto.nombre ?? "Producto"),
+      nombre: String(producto.nombre != null ? producto.nombre : "Producto"),
       precio: Number(producto.precio) || 0,
       imagen: producto.imagen ? String(producto.imagen) : "",
       qty: q,
@@ -474,8 +487,8 @@ export function payWhatsApp() {
   if (!cliente) {
     toast("❌ Campo obligatorio: Nombre del cliente", "error");
     const inp = document.getElementById("cx-cart-client");
-    inp?.focus?.();
-    inp?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    if (inp && typeof inp.focus === "function") inp.focus();
+    if (inp && typeof inp.scrollIntoView === "function") inp.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 
@@ -483,8 +496,8 @@ export function payWhatsApp() {
   if (!asesor) {
     toast("❌ Campo obligatorio: Nombre del asesor", "error");
     const inp = document.getElementById("cx-cart-advisor");
-    inp?.focus?.();
-    inp?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    if (inp && typeof inp.focus === "function") inp.focus();
+    if (inp && typeof inp.scrollIntoView === "function") inp.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 

@@ -134,7 +134,7 @@ function toastShow(msg, tipo = 'ok') {
 }
 
 function clampInt(n, min, max) {
-  const x = Number.parseInt(String(n ?? ''), 10);
+  const x = Number.parseInt(String(n == null ? '' : n), 10);
   if (!Number.isFinite(x)) return min;
   return Math.max(min, Math.min(max, x));
 }
@@ -507,7 +507,7 @@ function renderGrid(productos, pagina = 1) {
   const paginacion = document.getElementById('cx-paginacion');
   if (!grid) return;
 
-  if (!productos?.length) {
+  if (!productos || !productos.length) {
     renderVacio(
       Estado.busqueda ? `Sin resultados para "${Estado.busqueda}"` : 'Sin productos disponibles',
       Estado.busqueda ? 'Prueba otro término de búsqueda' : 'Vuelve pronto, estamos actualizando el catálogo'
@@ -539,11 +539,11 @@ function setVistaProductosUI(expandida) {
   const filtrosFila = document.querySelector('.cx-filtros-fila');
   const buscador = document.getElementById('cx-buscar');
 
-  productosSec?.classList.toggle('cx-view-productos', expandida);
-  productosSec?.classList.toggle('cx-view-categorias', !expandida);
-  productosSec?.classList.toggle('cx-cat-overlay-active', expandida);
-  marcas?.classList.toggle('is-hidden', !expandida);
-  filtrosFila?.classList.toggle('is-hidden', !expandida);
+  if (productosSec) productosSec.classList.toggle('cx-view-productos', expandida);
+  if (productosSec) productosSec.classList.toggle('cx-view-categorias', !expandida);
+  if (productosSec) productosSec.classList.toggle('cx-cat-overlay-active', expandida);
+  if (marcas) marcas.classList.toggle('is-hidden', !expandida);
+  if (filtrosFila) filtrosFila.classList.toggle('is-hidden', !expandida);
 
   if (filtros) filtros.innerHTML = '';
   if (buscador && buscador.value !== Estado.busqueda) buscador.value = Estado.busqueda;
@@ -762,7 +762,7 @@ function setupBuyInteractions() {
   if (grid) {
     grid.addEventListener('click', (e) => {
       const raw = e.target;
-      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
       if (!t) return;
 
       const row = t.closest('.cx-product-row');
@@ -791,8 +791,8 @@ function setupBuyInteractions() {
 
     grid.addEventListener('focusin', (e) => {
       const raw = e.target;
-      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
-      const row = t?.closest('.cx-product-row');
+      const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
+      const row = t ? t.closest('.cx-product-row') : null;
       if (!row) return;
       grid.querySelectorAll('.cx-product-row.is-selected').forEach((x) => x.classList.remove('is-selected'));
       row.classList.add('is-selected');
@@ -800,7 +800,7 @@ function setupBuyInteractions() {
 
     grid.addEventListener('keydown', (e) => {
       const raw = e.target;
-      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
       if (!t) return;
       if (e.key !== 'Enter') return;
 
@@ -827,7 +827,7 @@ function setupBuyInteractions() {
 
     grid.addEventListener('click', (e) => {
       const raw = e.target;
-      const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+      const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
       if (!t) return;
 
       const card = t.closest('.cx-card, .cx-product-row');
@@ -875,9 +875,9 @@ function setupBuyInteractions() {
 
   // modal controls
   const modal = document.getElementById('cx-modal');
-  modal?.addEventListener('click', (e) => {
+  if (modal) modal.addEventListener('click', (e) => {
     const raw = e.target;
-    const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
+    const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
     if (!t) return;
     const box = t.closest('.cx-modal-box');
     if (!box) return;
@@ -970,7 +970,7 @@ window.cxIrPagina = (pagina) => {
   }
   triggerSectionNavFx();
   const sec = document.getElementById('productos');
-  sec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 /* ══════════════════════════════════════════════════════
@@ -998,10 +998,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('click', (e) => {
     const raw = e.target;
-    const t = raw instanceof HTMLElement ? raw : (raw?.parentElement || null);
-    const btn = t?.closest('[data-page]');
+    const t = raw instanceof HTMLElement ? raw : ((raw && raw.parentElement) || null);
+    const btn = t ? t.closest('[data-page]') : null;
     if (!btn) return;
-    const onPagination = t?.closest('#cx-paginacion, #cx-paginacion-inline');
+    const onPagination = t ? t.closest('#cx-paginacion, #cx-paginacion-inline') : null;
     if (!onPagination) return;
     const next = clampInt(btn.getAttribute('data-page'), 1, Math.max(1, Math.ceil(Estado.filtrados.length / CFG.productosPorPagina)));
     if (next === Estado.paginaActual) return;
@@ -1010,7 +1010,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cerrar modal con Escape o clic en overlay
   document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
-  document.getElementById('cx-modal')?.addEventListener('click', e => {
-    if (e.target.id === 'cx-modal') cerrarModal();
-  });
+  const modalEl = document.getElementById('cx-modal');
+  if (modalEl) {
+    modalEl.addEventListener('click', e => {
+      if (e.target.id === 'cx-modal') cerrarModal();
+    });
+  }
 });

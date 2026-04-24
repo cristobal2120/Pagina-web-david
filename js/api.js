@@ -18,7 +18,7 @@ function isStockDisponible(stock) {
 }
 
 function limpiarTexto(value) {
-  return String(value ?? "").trim();
+  return String(value == null ? "" : value).trim();
 }
 
 function parsePrecio(value) {

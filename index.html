@@ -695,41 +695,44 @@ function toastInfo(msg) {
 }
 
 // Contact form (redirige a WhatsApp + Firestore cuando esté conectado)
-document.getElementById('cx-contact-form')?.addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn  = document.getElementById('cx-submit-btn');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="cx-spinner"></span> Enviando...';
-  btn.disabled  = true;
+const contactForm = document.getElementById('cx-contact-form');
+if (contactForm) {
+  contactForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn  = document.getElementById('cx-submit-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="cx-spinner"></span> Enviando...';
+    btn.disabled  = true;
 
-  const fd = new FormData(this);
-  const datos = Object.fromEntries(fd.entries());
+    const fd = new FormData(this);
+    const datos = Object.fromEntries(fd.entries());
 
-  // TODO: Guardar en Firestore:
-  // import { crearContacto } from './api.js';
-  // await crearContacto(datos);
+    // TODO: Guardar en Firestore:
+    // import { crearContacto } from './api.js';
+    // await crearContacto(datos);
 
-  await new Promise(r => setTimeout(r, 900)); // simula latencia
+    await new Promise(r => setTimeout(r, 900)); // simula latencia
 
-  const waText = encodeURIComponent(
-    `Hola, soy *${datos.nombre}*${datos.empresa ? ` de ${datos.empresa}` : ''}.\n` +
-    `Tel: ${datos.telefono}\n` +
-    `Mensaje: ${datos.mensaje}`
-  );
+    const waText = encodeURIComponent(
+      `Hola, soy *${datos.nombre}*${datos.empresa ? ` de ${datos.empresa}` : ''}.\n` +
+      `Tel: ${datos.telefono}\n` +
+      `Mensaje: ${datos.mensaje}`
+    );
 
-  btn.innerHTML = orig;
-  btn.disabled  = false;
-  this.reset();
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+    this.reset();
 
-  const t = document.getElementById('cx-toast');
-  t.querySelector('.cx-toast-dot').style.background = '#28a745';
-  t.querySelector('.cx-toast-msg').textContent = '¡Solicitud enviada! Abriendo WhatsApp ✅';
-  t.style.borderColor = '#28a745';
-  t.classList.add('show');
-  clearTimeout(window._tcc);
-  window._tcc = setTimeout(() => { t.classList.remove('show'); }, 3500);
-  setTimeout(() => window.open(`https://wa.me/573222023040?text=${waText}`, '_blank'), 700);
-});
+    const t = document.getElementById('cx-toast');
+    t.querySelector('.cx-toast-dot').style.background = '#28a745';
+    t.querySelector('.cx-toast-msg').textContent = '¡Solicitud enviada! Abriendo WhatsApp ✅';
+    t.style.borderColor = '#28a745';
+    t.classList.add('show');
+    clearTimeout(window._tcc);
+    window._tcc = setTimeout(() => { t.classList.remove('show'); }, 3500);
+    setTimeout(() => window.open(`https://wa.me/573222023040?text=${waText}`, '_blank'), 700);
+  });
+}
 </script>
 </body>
 </html>
