@@ -3114,8 +3114,22 @@ footer {
     white-space: normal;
   }
   .cx-cat-products-list {
-    max-height: none;
-    overflow: visible;
+    /* Mantener scroll dentro de la categoría (no “manda” al fondo de la página) */
+    max-height: min(58vh, 560px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* En móvil, al expandir una categoría, evitar solapes/overlay visual */
+  #productos.cx-view-productos .cx-cat-card:not(.is-open) {
+    display: none;
+  }
+
+  .cx-cat-card.is-open {
+    transform: none;
+    z-index: auto;
   }
 
   #inicio {
@@ -3274,7 +3288,8 @@ footer {
     gap: .7rem;
   }
   .cx-cat-card.is-open {
-    transform: translateY(-4px) scale(1.005);
+    transform: none;
+    z-index: auto;
     box-shadow: 0 18px 36px rgba(0,0,0,.4), 0 0 0 1px color-mix(in srgb, var(--cat-c, var(--blue-accent)) 28%, transparent);
   }
   .cx-cat-card-head {
