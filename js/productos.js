@@ -777,6 +777,16 @@ function setupBuyInteractions() {
         return;
       }
 
+      // Click en tarjeta (grid normal / búsqueda global): abrir modal de detalle
+      const card = t.closest('.cx-card');
+      if (card && !t.closest('[data-card-controls]')) {
+        const id = card.getAttribute('data-card-id');
+        if (id) {
+          abrirModal(id);
+          return;
+        }
+      }
+
       const catToggle = t.closest('[data-cat-toggle]');
       if (catToggle) {
         const cat = catToggle.getAttribute('data-cat-toggle');
@@ -812,6 +822,15 @@ function setupBuyInteractions() {
         const id = row.getAttribute('data-product-id');
         if (id) abrirModal(id);
         return;
+      }
+
+      const card = t.closest('.cx-card');
+      if (card && !t.closest('[data-card-controls]')) {
+        const id = card.getAttribute('data-card-id');
+        if (id) {
+          abrirModal(id);
+          return;
+        }
       }
 
       const catToggle = t.closest('[data-cat-toggle]');
@@ -972,6 +991,14 @@ window.cxIrPagina = (pagina) => {
     return;
   }
   triggerSectionNavFx();
+  // Al cambiar de página, volver al inicio del listado visible
+  if (Estado.categoriaExpandida) {
+    const head = document.querySelector('.cx-cat-card.is-open .cx-cat-products-head') ||
+                 document.querySelector('.cx-cat-card.is-open') ||
+                 document.getElementById('productos');
+    if (head instanceof HTMLElement) head.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   const sec = document.getElementById('productos');
   if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
