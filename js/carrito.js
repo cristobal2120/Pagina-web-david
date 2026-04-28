@@ -12,6 +12,76 @@ const CFG = {
   waNumero: "573222023040",
 };
 
+// A11y: focus trap + estado ARIA del drawer
+let _cartLastFocused = null;
+let _cartTrapHandler = null;
+
+function isCartOpen() {
+  const drawer = document.getElementById("cx-cart-drawer");
+  return !!(drawer && drawer.classList.contains("open"));
+}
+
+function getFocusableWithin(root) {
+  if (!(root instanceof HTMLElement)) return [];
+  const els = root.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  return Array.from(els).filter((el) => el instanceof HTMLElement);
+}
+
+function setCartA11yState(open) {
+  const btn = document.getElementById("cx-cart-btn");
+  const drawer = document.getElementById("cx-cart-drawer");
+  const overlay = document.getElementById("cx-cart-overlay");
+  if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+  if (drawer) drawer.setAttribute("aria-hidden", open ? "false" : "true");
+  if (overlay) overlay.setAttribute("aria-hidden", open ? "false" : "true");
+}
+
+function activateCartFocusTrap(drawer) {
+  if (!(drawer instanceof HTMLElement)) return;
+  if (_cartTrapHandler) return;
+
+  _cartTrapHandler = (e) => {
+    if (!isCartOpen()) return;
+    if (e.key !== "Tab") return;
+
+    const focusables = getFocusableWithin(drawer).filter(
+      (el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true"
+    );
+    if (!focusables.length) {
+      e.preventDefault();
+      drawer.focus();
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+
+    if (e.shiftKey) {
+      if (active === first || active === drawer) {
+        e.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+
+    if (active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  document.addEventListener("keydown", _cartTrapHandler);
+}
+
+function deactivateCartFocusTrap() {
+  if (!_cartTrapHandler) return;
+  document.removeEventListener("keydown", _cartTrapHandler);
+  _cartTrapHandler = null;
+}
+
 /* ══════════════════════════════════════════════════════
    UTILIDADES
 ══════════════════════════════════════════════════════ */
@@ -140,6 +210,9 @@ function ensureCartUI() {
 
   if (!btn || !drawer || !overlay) return;
 
+  // Estado ARIA inicial
+  setCartA11yState(isCartOpen());
+
   // Sincronizar datos del formulario
   syncMetaToUI();
   const cartForm = drawer.querySelector("#cx-cart-form");
@@ -171,7 +244,7 @@ function ensureCartUI() {
 
   // Cerrar con Escape
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeCart();
+    if (e.key === "Escape" && isCartOpen()) closeCart();
   });
 
   // Eventos de cantidad (±) y eliminación
@@ -241,12 +314,20 @@ function openCart() {
   const drawer = document.getElementById("cx-cart-drawer");
   const overlay = document.getElementById("cx-cart-overlay");
   if (!drawer || !overlay) return;
+
+  _cartLastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   overlay.classList.add("open");
   drawer.classList.add("open");
   document.body.style.overflow = "hidden";
   syncMetaToUI();
-  const firstInput = drawer.querySelector("input");
-  if (firstInput && typeof firstInput.focus === "function") firstInput.focus();
+
+  setCartA11yState(true);
+  activateCartFocusTrap(drawer);
+
+  const focusables = getFocusableWithin(drawer);
+  const first = focusables.find((el) => el instanceof HTMLInputElement) || focusables[0];
+  if (first && typeof first.focus === "function") first.focus();
+  else drawer.focus();
 }
 
 function closeCart() {
@@ -256,6 +337,12 @@ function closeCart() {
   overlay.classList.remove("open");
   drawer.classList.remove("open");
   document.body.style.overflow = "";
+
+  deactivateCartFocusTrap();
+  setCartA11yState(false);
+
+  const backTo = _cartLastFocused || document.getElementById("cx-cart-btn");
+  if (backTo && typeof backTo.focus === "function") backTo.focus();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -355,10 +442,15 @@ function playDeliveryPrepFx() {
 ══════════════════════════════════════════════════════ */
 function updateCartBadge(items) {
   const badge = document.getElementById("cx-cart-count");
+  const sr = document.getElementById("cx-cart-count-sr");
   if (!badge) return;
   const { totalQty } = getTotals(items);
   badge.textContent = String(totalQty);
   badge.style.display = totalQty > 0 ? "inline-flex" : "none";
+  if (sr) {
+    if (totalQty <= 0) sr.textContent = "Carrito vacío.";
+    else sr.textContent = `Carrito: ${totalQty} ${totalQty === 1 ? "producto" : "productos"}.`;
+  }
 }
 
 /* ══════════════════════════════════════════════════════
