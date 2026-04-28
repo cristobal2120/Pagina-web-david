@@ -56,6 +56,9 @@ function readCart() {
         nombre: String(it.nombre),
         precio: Number(it.precio) || 0,
         imagen: it.imagen ? String(it.imagen) : "",
+        descripcion: it.descripcion ? String(it.descripcion) : "",
+        marca: it.marca ? String(it.marca) : "",
+        categoria: it.categoria ? String(it.categoria) : "",
         qty: clampInt(it.qty, 1, 999),
       }));
   } catch {
@@ -198,6 +201,14 @@ function ensureCartUI() {
       e.preventDefault();
       removeItem(id);
       toast("Producto eliminado del carrito ✓", "info");
+      return;
+    }
+
+    // Abrir detalle del producto (click en el contenido, no en controles)
+    const openArea = target.closest("[data-cart-open]");
+    if (openArea) {
+      e.preventDefault();
+      openCartItemDetail(id);
       return;
     }
   });
@@ -380,14 +391,22 @@ function renderCart() {
         const subtotal = (it.qty || 0) * (it.precio || 0);
         return `
           <div class="cx-cart-row" data-cart-row="1" data-id="${it.id}">
-            <div class="cx-cart-row-main" style="flex:1">
+            <button class="cx-cart-thumb" type="button" data-cart-open aria-label="Ver detalle de ${it.nombre}">
+              ${
+                it.imagen
+                  ? `<img src="${it.imagen}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                     <span class="cx-cart-thumb-ph" style="display:none" aria-hidden="true">🛒</span>`
+                  : `<span class="cx-cart-thumb-ph" aria-hidden="true">🛒</span>`
+              }
+            </button>
+            <button class="cx-cart-row-main" type="button" data-cart-open aria-label="Ver detalle de ${it.nombre}">
               <div class="cx-cart-row-title">${it.nombre}</div>
               <div class="cx-cart-row-sub">
                 <span>${formatCOP(it.precio)}</span>
                 <span class="cx-cart-row-dot">•</span>
                 <span>Subtotal: <strong>${formatCOP(subtotal)}</strong></span>
               </div>
-            </div>
+            </button>
             <div class="cx-cart-row-actions">
               <div class="cx-qty" aria-label="Cantidad">
                 <button class="cx-qty-btn" type="button" data-cart-dec aria-label="Disminuir cantidad">−</button>
@@ -428,10 +447,22 @@ export function addItem(producto, qty, sourceEl = null) {
       nombre: String(producto.nombre != null ? producto.nombre : "Producto"),
       precio: Number(producto.precio) || 0,
       imagen: producto.imagen ? String(producto.imagen) : "",
+      descripcion: producto.descripcion ? String(producto.descripcion) : "",
+      marca: producto.marca ? String(producto.marca) : "",
+      categoria: producto.categoria ? String(producto.categoria) : "",
       qty: q,
     });
   } else {
     items[idx].qty = clampInt((items[idx].qty || 0) + q, 1, 999);
+    // refrescar data del producto si cambió en el catálogo (mantener qty)
+    if (producto && typeof producto === "object") {
+      items[idx].nombre = String(producto.nombre != null ? producto.nombre : items[idx].nombre);
+      items[idx].precio = Number(producto.precio) || items[idx].precio || 0;
+      items[idx].imagen = producto.imagen ? String(producto.imagen) : items[idx].imagen || "";
+      items[idx].descripcion = producto.descripcion ? String(producto.descripcion) : items[idx].descripcion || "";
+      items[idx].marca = producto.marca ? String(producto.marca) : items[idx].marca || "";
+      items[idx].categoria = producto.categoria ? String(producto.categoria) : items[idx].categoria || "";
+    }
   }
 
   writeCart(items);
@@ -561,6 +592,54 @@ export function payWhatsApp() {
 export function initCart() {
   ensureCartUI();
   renderCart();
+}
+
+/* ══════════════════════════════════════════════════════
+   DETALLE DESDE CARRITO (reusa #cx-modal)
+══════════════════════════════════════════════════════ */
+function openCartItemDetail(id) {
+  const items = readCart();
+  const it = items.find((x) => x.id === String(id));
+  if (!it) return;
+
+  const modal = document.getElementById("cx-modal");
+  const body = document.getElementById("cx-modal-body");
+  if (!modal || !body) return;
+
+  const precioTxt = formatCOP(it.precio || 0);
+  const desc = (it.descripcion || "").trim() || "Sin descripción disponible.";
+  const marcaTxt = (it.marca || "").trim();
+  const catTxt = (it.categoria || "").trim();
+
+  body.innerHTML = `
+    <button class="cx-modal-back" type="button" onclick="cxCerrarModal?.()" aria-label="Volver">
+      ← Volver
+    </button>
+    <div class="cx-modal-img" style="--c:var(--blue-main)">
+      ${
+        it.imagen
+          ? `<img src="${it.imagen}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+             <div class="cx-placeholder cx-placeholder-lg" style="display:none;color:var(--blue-main)">🛒</div>`
+          : `<div class="cx-placeholder cx-placeholder-lg" style="color:var(--blue-main)">🛒</div>`
+      }
+    </div>
+    <div class="cx-modal-info">
+      <div class="cx-modal-meta">
+        ${
+          catTxt
+            ? `<span class="cx-cat-pill" style="color:var(--blue-main);background:rgba(45,126,194,.10);border-color:rgba(45,126,194,.20)">${catTxt}</span>`
+            : ""
+        }
+        ${marcaTxt ? `<span class="cx-modal-brand">Marca: ${marcaTxt}</span>` : ""}
+      </div>
+      <h2 class="cx-modal-title">${it.nombre}</h2>
+      <p class="cx-modal-desc">${desc}</p>
+      <div class="cx-modal-precio">${precioTxt}</div>
+    </div>
+  `;
+
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
 }
 
 /* ══════════════════════════════════════════════════════
