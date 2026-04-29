@@ -1162,11 +1162,9 @@ ul     { list-style: none; }
   z-index: 4;
   opacity: 1;
 }
+/* Solo la categoría abierta: las demás ocupan espacio en el grid y alejan la lista del buscador */
 #productos.cx-view-productos .cx-cat-card:not(.is-open) {
-  opacity: .18;
-  filter: blur(1.2px) grayscale(55%) saturate(.75);
-  transform: scale(.96);
-  pointer-events: none;
+  display: none;
 }
 #productos.cx-view-categorias .cx-cat-card,
 #productos:not(.cx-view-productos) .cx-cat-card {
@@ -3334,11 +3332,6 @@ footer {
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-  }
-
-  /* En móvil, al expandir una categoría, evitar solapes/overlay visual */
-  #productos.cx-view-productos .cx-cat-card:not(.is-open) {
-    display: none;
   }
 
   .cx-cat-card.is-open {
