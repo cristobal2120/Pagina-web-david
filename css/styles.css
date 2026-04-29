@@ -3528,10 +3528,19 @@ footer {
   }
 
   .cx-product-row { padding: .62rem; }
+  /* Restaurar scroll interno: sin esto el panel supera .cx-cat-expand.open y el overflow recorta la paginación */
   .cx-cat-products-list {
-    max-height: none;
-    overflow: visible;
+    max-height: min(50vh, 440px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
     gap: .7rem;
+  }
+  .cx-cat-expand.open {
+    max-height: min(92vh, 3400px);
   }
 
   .cx-toolbar       { flex-direction: column; gap: .28rem; margin-bottom: .35rem; }
