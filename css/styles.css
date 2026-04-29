@@ -542,7 +542,10 @@ ul     { list-style: none; }
   font-weight: 500;
   line-height: 1.7;
   padding-left: 1rem;
+  padding-right: 0.25rem;
   border-left: 3px solid var(--blue-main);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .cx-hero-cta {
@@ -562,20 +565,21 @@ ul     { list-style: none; }
   left: auto;
   bottom: auto;
   transform: none;
-  z-index: 3;
+  z-index: 2;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
   gap: 1rem;
+  margin-top: 2rem;
   background: var(--hero-stats-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 1rem 1.15rem;
   box-sizing: border-box;
-  width: calc(100% - 2 * var(--container-px));
-  max-width: min(980px, calc(100% - 2 * var(--container-px)));
+  width: 100%;
+  max-width: min(980px, 100%);
   margin-inline: auto;
   white-space: normal;
 }
@@ -2469,7 +2473,8 @@ ul     { list-style: none; }
 ───────────────────────────────────────────────── */
 .cx-wa-float {
   position: fixed;
-  bottom: 1.75rem; right: 1.75rem;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
   z-index: 900;
   animation: pop .5s .6s cubic-bezier(.34,1.56,.64,1) both;
 }
@@ -3251,8 +3256,12 @@ footer {
   .cx-cart-btn  { width: 44px; height: 44px; }
   .cx-theme-btn { width: 42px; height: 42px; }
 
+  .cx-hero-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
   .cx-hero-stats {
-    margin-top: 2rem;
     grid-template-columns: 1fr;
     gap: .85rem;
     padding: .75rem 1.25rem;
@@ -3314,6 +3323,7 @@ footer {
     padding-top: var(--header-h);
   }
   #inicio > .cx-container {
+    min-width: 0;
     padding-top: .45rem;
     padding-bottom: 1.8rem;
   }
