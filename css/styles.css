@@ -2826,7 +2826,7 @@ footer {
   height: auto;
   max-height: 100vh;
   max-height: 100dvh;
-  width: min(420px, 92vw);
+  width: min(460px, 94vw);
   z-index: 1900;
   background: var(--cart-drawer-bg);
   backdrop-filter: blur(16px);
@@ -2843,7 +2843,7 @@ footer {
 .cx-cart-drawer.open { transform: translateX(0); }
 
 .cx-cart-head {
-  padding: 1.1rem 1.15rem;
+  padding: clamp(1.05rem, .95rem + .4vw, 1.3rem) clamp(1.05rem, .9rem + .5vw, 1.35rem);
   border-bottom: 1px solid rgba(45, 126, 194, 0.1);
   display: flex;
   align-items: flex-start;
@@ -2852,12 +2852,12 @@ footer {
 }
 .cx-cart-title {
   font-family: var(--font-head);
-  font-size: 1.7rem;
+  font-size: clamp(1.75rem, 1.45rem + .7vw, 2.05rem);
   letter-spacing: .04em;
   line-height: 1;
   color: var(--cart-text);
 }
-.cx-cart-sub { color: var(--cart-muted); font-size: .85rem; margin-top: .25rem; }
+.cx-cart-sub { color: var(--cart-muted); font-size: .95rem; margin-top: .3rem; line-height: 1.35; }
 [data-theme="light"] .cx-cart-sub {
   color: #2f4258;
   font-weight: 600;
@@ -2879,7 +2879,7 @@ footer {
 
 .cx-cart-body {
   min-height: 0;
-  padding: 1rem 1.15rem;
+  padding: clamp(.95rem, .8rem + .5vw, 1.2rem) clamp(1.05rem, .9rem + .5vw, 1.35rem);
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -2893,20 +2893,20 @@ footer {
   background: rgba(45, 126, 194, 0.04);
   text-align: center;
 }
-.cx-cart-items { display: flex; flex-direction: column; gap: .85rem; }
+.cx-cart-items { display: flex; flex-direction: column; gap: 1rem; }
 .cx-cart-row {
   border: 1px solid rgba(45, 126, 194, 0.1);
   border-radius: 14px;
   background: var(--cart-row-bg);
-  padding: .9rem .95rem;
+  padding: 1rem 1.05rem;
   display: flex;
-  gap: .85rem;
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
 }
 .cx-cart-thumb {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 12px;
   border: 1px solid rgba(45, 126, 194, 0.18);
   overflow: hidden;
@@ -2945,6 +2945,7 @@ footer {
 .cx-cart-row-title {
   font-family: var(--font-cond);
   font-weight: 800;
+  font-size: .95rem;
   letter-spacing: .02em;
   line-height: 1.2;
   color: var(--cart-text);
@@ -2952,7 +2953,7 @@ footer {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cx-cart-row-sub { color: var(--cart-muted); font-size: .82rem; margin-top: .25rem; display:flex; gap:.4rem; flex-wrap: wrap; }
+.cx-cart-row-sub { color: var(--cart-muted); font-size: .9rem; margin-top: .28rem; display:flex; gap:.45rem; flex-wrap: wrap; }
 .cx-cart-row-sub strong { color: var(--blue-light); font-weight: 800; }
 .cx-cart-row-actions {
   display: flex;
@@ -2982,7 +2983,7 @@ footer {
 }
 
 .cx-cart-foot {
-  padding: 1rem 1.15rem max(1.15rem, env(safe-area-inset-bottom, 0px));
+  padding: clamp(.95rem, .82rem + .45vw, 1.2rem) clamp(1.05rem, .9rem + .5vw, 1.35rem) max(1.15rem, env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(45, 126, 194, 0.1);
   display: grid;
   gap: .75rem;
@@ -3009,8 +3010,9 @@ footer {
 .cx-cart-foot .cx-btn {
   width: 100%;
   justify-content: center;
-  padding: .85rem 1.2rem;
+  padding: .98rem 1.2rem;
   border-radius: 12px;
+  font-size: 1rem;
 }
 
 /* Botón "Vaciar carrito" */
@@ -3020,7 +3022,7 @@ footer {
   font-weight: 800;
   letter-spacing: .12em;
   text-transform: uppercase;
-  font-size: .72rem;
+  font-size: .78rem;
   padding: .3rem .2rem;
   justify-self: center;
   border-radius: 10px;
@@ -3037,12 +3039,12 @@ footer {
 /* Formulario del carrito (Cliente / Asesor) */
 .cx-cart-form {
   display: grid;
-  gap: .7rem;
+  gap: .82rem;
 }
 .cx-cart-form-row { display: grid; gap: .35rem; }
 .cx-cart-label {
   font-family: var(--font-cond);
-  font-size: .72rem;
+  font-size: .78rem;
   font-weight: 800;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -3050,13 +3052,14 @@ footer {
 }
 .cx-cart-input {
   width: 100%;
-  padding: .65rem .85rem;
+  padding: .78rem .92rem;
   background: var(--cart-input-bg);
   border: 1px solid rgba(45, 126, 194, 0.18);
   border-radius: 10px;
   color: var(--cart-text);
   outline: none;
   transition: var(--t);
+  font-size: .98rem;
 }
 .cx-cart-input::placeholder { color: var(--cart-placeholder); }
 .cx-cart-input:focus {
@@ -3085,7 +3088,7 @@ footer {
 }
 .cx-cart-total-row strong {
   color: var(--blue-accent);
-  font-size: 1.15rem;
+  font-size: clamp(1.2rem, 1.05rem + .5vw, 1.45rem);
   letter-spacing: .02em;
   text-transform: none;
 }
