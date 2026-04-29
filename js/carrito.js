@@ -15,6 +15,7 @@ const CFG = {
 // A11y: focus trap + estado ARIA del drawer
 let _cartLastFocused = null;
 let _cartTrapHandler = null;
+let _cartViewportCleanup = null;
 
 function isCartOpen() {
   const drawer = document.getElementById("cx-cart-drawer");
@@ -286,16 +287,7 @@ function ensureCartUI() {
     }
   });
 
-  // Edición directa de cantidad (input)
-  drawer.addEventListener("input", (e) => {
-    const target = e.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    if (!target.matches("[data-cart-qty]")) return;
-    const row = target.closest("[data-cart-row]");
-    const id = row ? row.getAttribute("data-id") : null;
-    if (!id) return;
-    setQty(id, clampInt(target.value, 1, 999));
-  });
+  // Cantidad en carrito: solo ± (sin input editable → evita teclado y re-render por tecla)
 
   // Click en botón "Pagar"
   const payBtn = drawer.querySelector("#cx-cart-pay");
@@ -310,6 +302,36 @@ function ensureCartUI() {
 /* ══════════════════════════════════════════════════════
    MODAL: ABRIR / CERRAR
 ══════════════════════════════════════════════════════ */
+function attachCartViewportSizing(drawer) {
+  if (!(drawer instanceof HTMLElement)) return;
+  if (_cartViewportCleanup) _cartViewportCleanup();
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  const sync = () => {
+    if (!drawer.classList.contains("open")) return;
+    const h = vv.height;
+    drawer.style.bottom = "auto";
+    drawer.style.maxHeight = `${h}px`;
+    drawer.style.height = `${h}px`;
+    drawer.style.top = `${vv.offsetTop}px`;
+  };
+
+  sync();
+  vv.addEventListener("resize", sync);
+  vv.addEventListener("scroll", sync);
+
+  _cartViewportCleanup = () => {
+    vv.removeEventListener("resize", sync);
+    vv.removeEventListener("scroll", sync);
+    drawer.style.maxHeight = "";
+    drawer.style.height = "";
+    drawer.style.top = "";
+    drawer.style.bottom = "";
+    _cartViewportCleanup = null;
+  };
+}
+
 function openCart() {
   const drawer = document.getElementById("cx-cart-drawer");
   const overlay = document.getElementById("cx-cart-overlay");
@@ -321,12 +343,13 @@ function openCart() {
   document.body.style.overflow = "hidden";
   syncMetaToUI();
 
+  attachCartViewportSizing(drawer);
+
   setCartA11yState(true);
   activateCartFocusTrap(drawer);
 
-  const focusables = getFocusableWithin(drawer);
-  const first = focusables.find((el) => el instanceof HTMLInputElement) || focusables[0];
-  if (first && typeof first.focus === "function") first.focus();
+  const closeBtn = drawer.querySelector('[data-cart-close="1"]');
+  if (closeBtn && typeof closeBtn.focus === "function") closeBtn.focus();
   else drawer.focus();
 }
 
@@ -334,6 +357,7 @@ function closeCart() {
   const drawer = document.getElementById("cx-cart-drawer");
   const overlay = document.getElementById("cx-cart-overlay");
   if (!drawer || !overlay) return;
+  if (_cartViewportCleanup) _cartViewportCleanup();
   overlay.classList.remove("open");
   drawer.classList.remove("open");
   document.body.style.overflow = "";
@@ -500,9 +524,9 @@ function renderCart() {
               </div>
             </button>
             <div class="cx-cart-row-actions">
-              <div class="cx-qty" aria-label="Cantidad">
+              <div class="cx-qty cx-qty-cart" aria-label="Cantidad">
                 <button class="cx-qty-btn" type="button" data-cart-dec aria-label="Disminuir cantidad">−</button>
-                <input class="cx-qty-input" inputmode="numeric" type="number" min="1" max="999" value="${it.qty}" data-cart-qty aria-label="Cantidad de ${it.nombre}">
+                <span class="cx-cart-qty-num" aria-live="polite">${it.qty}</span>
                 <button class="cx-qty-btn" type="button" data-cart-inc aria-label="Aumentar cantidad">+</button>
               </div>
               <button class="cx-cart-del" type="button" data-cart-del aria-label="Eliminar ${it.nombre}">Eliminar</button>
