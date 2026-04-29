@@ -310,24 +310,15 @@ function attachCartViewportSizing(drawer) {
 
   const sync = () => {
     if (!drawer.classList.contains("open")) return;
-    const h = vv.height;
-    drawer.style.bottom = "auto";
-    drawer.style.maxHeight = `${h}px`;
-    drawer.style.height = `${h}px`;
-    drawer.style.top = `${vv.offsetTop}px`;
+    drawer.style.maxHeight = `${vv.height}px`;
   };
 
   sync();
   vv.addEventListener("resize", sync);
-  vv.addEventListener("scroll", sync);
 
   _cartViewportCleanup = () => {
     vv.removeEventListener("resize", sync);
-    vv.removeEventListener("scroll", sync);
     drawer.style.maxHeight = "";
-    drawer.style.height = "";
-    drawer.style.top = "";
-    drawer.style.bottom = "";
     _cartViewportCleanup = null;
   };
 }
