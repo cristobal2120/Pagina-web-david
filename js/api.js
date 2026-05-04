@@ -106,7 +106,7 @@ export async function getProductos(filtros = {}) {
         return Boolean(tieneContenido) && isStockDisponible(row.stock);
       })
       .map(mapearProducto)
-      .filter((p) => p.nombre && p.precio >= 0);
+      .filter((p) => p.nombre && p.precio > 0);
 
     if (filtros.categoria && filtros.categoria !== "todos") {
       productos = productos.filter((p) => p.categoria === filtros.categoria);

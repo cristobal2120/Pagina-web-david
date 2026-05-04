@@ -139,6 +139,12 @@ function clampInt(n, min, max) {
   return Math.max(min, Math.min(max, x));
 }
 
+/** Precio 0 o inválido: no se muestra en categorías ni en el catálogo. */
+function tienePrecioPublico(p) {
+  const n = Number(p?.precio);
+  return Number.isFinite(n) && n > 0;
+}
+
 function productoPorId(id) {
   return Estado.todos.find((x) => x.id === id);
 }
@@ -942,9 +948,10 @@ async function init() {
 
   try {
     const { productos } = await getProductos();
-    Estado.todos = productos;
-    Estado.filtrados = [...productos];
-    renderFiltros(productos);
+    const visibles = productos.filter(tienePrecioPublico);
+    Estado.todos = visibles;
+    Estado.filtrados = [...visibles];
+    renderFiltros(visibles);
     renderMarcas([]);
     renderVistaCategorias();
     Estado.cargando = false;
