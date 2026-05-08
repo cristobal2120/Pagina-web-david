@@ -37,7 +37,7 @@ const CFG = {
   waNumero:    '573222023040',
   debounceMs:  320,
   skeletons:   9,
-  productosPorPagina: 30,
+  productosPorPagina: 999999,
 };
 
 const CATEGORIAS_LABEL = {
@@ -534,7 +534,7 @@ function renderGrid(productos, pagina = 1) {
   });
 
   if (contador) {
-    contador.textContent = `${pag.totalItems} producto${pag.totalItems !== 1 ? 's' : ''} · Página ${pag.paginaActual}/${pag.totalPaginas}`;
+    contador.textContent = `${pag.totalItems} producto${pag.totalItems !== 1 ? 's' : ''}`;
   }
 
   renderPaginacion(pag.totalPaginas, pag.paginaActual);
@@ -697,6 +697,29 @@ function volverCategorias() {
   Estado.busqueda = '';
   renderMarcas([]);
   renderVistaCategorias();
+}
+
+/** Cierra la categoría expandida al tocar fuera de su tarjeta (backdrop), sin interferir con el modal ni la barra de búsqueda. */
+function setupCerrarCategoriaAlToqueFuera() {
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (!Estado.categoriaExpandida) return;
+
+      const modal = document.getElementById('cx-modal');
+      if (modal && modal.classList.contains('open')) return;
+
+      const raw = e.target;
+      const t = raw instanceof Element ? raw : (raw && raw.parentElement);
+      if (!(t instanceof Element)) return;
+
+      if (t.closest('.cx-cat-card.is-open')) return;
+      if (t.closest('#productos .cx-toolbar')) return;
+
+      volverCategorias();
+    },
+    true
+  );
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1017,6 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCart();
   init();
   setupBuyInteractions();
+  setupCerrarCategoriaAlToqueFuera();
 
   // Búsqueda con debounce
   const inp = document.getElementById('cx-buscar');
