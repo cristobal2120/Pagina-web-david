@@ -2155,24 +2155,29 @@ ul     { list-style: none; }
 @media (max-width: 600px) {
   #cx-modal {
     padding: 0;
-    align-items: flex-end;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: stretch;
   }
   .cx-modal-box {
     max-width: 100%;
     width: 100%;
-    border-radius: 20px 20px 0 0;
-    max-height: 92vh;
+    border-radius: 0;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     transform: translateY(24px);
     transition: transform .28s cubic-bezier(.22,1,.36,1);
-    border-left: 0;
-    border-right: 0;
-    border-bottom: 0;
+    border: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   #cx-modal.open .cx-modal-box { transform: translateY(0); }
   .cx-modal-close { top: .8rem; right: .8rem; }
   .cx-modal-back  { top: .8rem; left: .8rem; }
-  .cx-modal-img { height: 280px; border-radius: 20px 20px 0 0; }
+  .cx-modal-img { height: 280px; border-radius: 0; }
   .cx-modal-info { padding: 1.15rem 1.15rem 1.35rem; }
 }
 
